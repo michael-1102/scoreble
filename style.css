@@ -7,10 +7,8 @@ h1 {
  font-size: xx-large;
 }
 
-#debug {
-  position: sticky;
-  left: 50%;
-  font-size: 2em;
+button {
+  cursor: pointer;
 }
 
 #board {
@@ -52,7 +50,7 @@ h1 {
     background-color: #bfbc95;
 }
 
-.tile[data-selected="true"] {
+.tile.selected {
     border: 0.1em solid blue;
 }
 
@@ -82,18 +80,43 @@ h1 {
   background-color: #bfbc95;
   color: black;
   fill: black;
-  text-transform: uppercase;
   border-radius: 0.25em;
-  cursor: pointer;
   user-select: none;
+  box-shadow: 0 3px #999;
+
 }
+
+#alert-container {
+  position: fixed;
+  top: 10vh;
+  left: 50vw;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.alert {
+  pointer-events: none;
+  color: white;
+  font-size: 1em;
+  background-color:black;
+  padding: 0.75em;
+  border-radius: 0.25em;
+  opacity: 1;
+  transition: opacity 500ms ease-in-out;
+  margin-bottom: 0.5em;
+}
+
+.alert.hidden {
+  opacity: 0;
+}
+
 
 .key[data-state="wrong"] {
   background-color: gray;
 }
 
 .key[data-state="correct"] {
-  background-color: lime;
+  background-color: lawngreen;
 }
 
 .key[data-state="wrong-spot"] {
@@ -101,10 +124,54 @@ h1 {
 }
 
 .key:hover,
-.key:focus {
+.key:active {
   filter:sepia(50%);
 }
 
 .key.large {
   grid-column: span 3;
+}
+
+.space {
+  grid-column: span 1;
+}
+
+.space.large {
+  grid-column: span 4;
+}
+
+.key.xl {
+  grid-column: span 7;
+}
+
+.key.xxl {
+  grid-column: span 9;
+}
+
+.key:active,
+.key.pressed {
+  transform: translateY(2px);
+  box-shadow: 0 1px #666;
+}
+
+:modal {
+  background-color: white;
+}
+
+.close {
+  float: right;
+  vertical-align: top;
+  border: none;
+  background: none;
+  transform: translate(50%, -50%);
+  font-size: x-large;
+  font-family: fantasy;
+}
+
+.confirm {
+  font-weight: bold;
+  font-size: large;
+  padding: 3%;
+  float: right;
+  vertical-align: bottom;
 }

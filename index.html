@@ -2,15 +2,25 @@
 <html>
 <head>
 <link rel="stylesheet" href="style.css">
-<div id="debug"></div>
 </head>
 <body>
 <h1>Scoreble</h1>
 <script src="script.js" type="module"></script>
-<div id="board">
-</div>
+<dialog id="giveup" closedby="any">
+<button class="close">&times;</button>
+<p>Are you sure you want to give up?</p>
+<button class="confirm">Confirm</button>
+</dialog>
+<dialog id="results" closedby="none">
+</dialog>
+<div id="alert-container"></div>
+<div id="board"></div>
 
 <div data-keyboard id="keyboard">
+      <button data-giveup class="key xl">Give Up</button>
+      <div class="space large"></div>
+      <button data-select class="key xxl"></button>
+
       <button class="key" data-key="Q">Q</button>
       <button class="key" data-key="W">W</button>
       <button class="key" data-key="E">E</button>
@@ -36,7 +46,7 @@
 
       <div class="space"></div>
 
-      <button data-enter class="key large">Enter</button>
+      <button data-enter class="key large">ENTER</button>
       <button class="key" data-key="Z">Z</button>
       <button class="key" data-key="X">X</button>
       <button class="key" data-key="C">C</button>
@@ -45,7 +55,8 @@
       <button class="key" data-key="N">N</button>
       <button class="key" data-key="M">M</button>
 
-      <button data-delete class="key large">Del</button>
+      <button data-delete class="key large">DEL</button>
+
     </div>
 
 </body>

@@ -1,9 +1,12 @@
 import { ALL_WORDS } from "./words.js";
 
 let correctWord = "ghost";
+let guessCount = 0;
+
 const BOARD_WIDTH = 15;
 const BOARD_LENGTH = BOARD_WIDTH;
 const NUM_TILES = BOARD_WIDTH * BOARD_LENGTH;
+const ALERT_DURATION = 1000;
 
 const horizontalWrong = String.raw`<svg
           xmlns="http://www.w3.org/2000/svg"
@@ -12,8 +15,8 @@ const horizontalWrong = String.raw`<svg
           height="40"
           class="arrow"
         >
-          <rect x="27.5" y="17" width="6" height="6" fill="gray"/>
-          <path d="M 28.5 18 v 4 l 4 -2 z" fill="transparent" stroke-width="0.2" stroke="black"></path>
+          <rect x="27.5" y="14" width="6" height="12" fill="gray"/>
+          <path d="M 28.5 18 v 4 l 4 -2 z" fill="black" stroke-width="0.2" stroke="black"></path>
         </svg>`;
 const verticalWrong = String.raw`<svg
           xmlns="http://www.w3.org/2000/svg"
@@ -22,8 +25,8 @@ const verticalWrong = String.raw`<svg
           height="40"
           class="arrow"
         >
-          <rect x="17" y="27.5" width="6" height="6" fill="gray"/>
-          <path d="M 18 28.5 h 4 l -2 4 z" fill="transparent" stroke-width="0.2" stroke="black"></path>
+          <rect x="14" y="27.5" width="12" height="6" fill="gray"/>
+          <path d="M 18 28.5 h 4 l -2 4 z" fill="black" stroke-width="0.2" stroke="black"></path>
         </svg>`;
 
 
@@ -34,8 +37,8 @@ const horizontalCorrect = String.raw`<svg
           height="40"
           class="arrow"
         >
-          <rect x="27.5" y="17" width="6" height="6" fill="lime"/>
-          <path d="M 28.5 18 v 4 l 4 -2 z" fill="transparent" stroke-width="0.2" stroke="black"></path>
+          <rect x="27.5" y="14" width="6" height="12" fill="lawngreen"/>
+          <path d="M 28.5 18 v 4 l 4 -2 z" fill="black" stroke-width="0.2" stroke="black"></path>
         </svg>`;
 const verticalCorrect = String.raw`<svg
           xmlns="http://www.w3.org/2000/svg"
@@ -44,8 +47,8 @@ const verticalCorrect = String.raw`<svg
           height="40"
           class="arrow"
         >
-          <rect x="17" y="27.5" width="6" height="6" fill="lime"/>
-          <path d="M 18 28.5 h 4 l -2 4 z" fill="transparent" stroke-width="0.2" stroke="black"></path>
+          <rect x="14" y="27.5" width="12" height="6" fill="lawngreen"/>
+          <path d="M 18 28.5 h 4 l -2 4 z" fill="black" stroke-width="0.2" stroke="black"></path>
         </svg>`;
 
 const horizontalWrongSpot = String.raw`<svg
@@ -55,8 +58,8 @@ const horizontalWrongSpot = String.raw`<svg
           height="40"
           class="arrow"
         >
-          <rect x="27.5" y="17" width="6" height="6" fill="yellow"/>
-          <path d="M 28.5 18 v 4 l 4 -2 z" fill="transparent" stroke-width="0.2" stroke="black"></path>
+          <rect x="27.5" y="14" width="6" height="12" fill="yellow"/>
+          <path d="M 28.5 18 v 4 l 4 -2 z" fill="black" stroke-width="0.2" stroke="black"></path>
         </svg>`;
 const verticalWrongSpot = String.raw`<svg
           xmlns="http://www.w3.org/2000/svg"
@@ -65,23 +68,39 @@ const verticalWrongSpot = String.raw`<svg
           height="40"
           class="arrow"
         >
-          <rect x="17" y="27.5" width="6" height="6" fill="yellow"/>
-          <path d="M 18 28.5 h 4 l -2 4 z" fill="transparent" stroke-width="0.2" stroke="black"></path>
+          <rect x="14" y="27.5" width="12" height="6" fill="yellow"/>
+          <path d="M 18 28.5 h 4 l -2 4 z" fill="black" stroke-width="0.2" stroke="black"></path>
         </svg>`;
 
 const keyboard = document.getElementById("keyboard");
 const board = document.getElementById("board");
+const alerts = document.getElementById("alert-container");
+const giveUpModal = document.getElementById("giveup");
+const resultsModal = document.getElementById("results");
 const filledTiles = [];
 const selectedTiles = [];
-const debug = document.getElementById("debug");
 
 let guessing;
+let hasWon = false;
 let nextGuessIsVertical = false;
 
 initBoard();
 
-function print(str) {
-  debug.innerHTML = str;
+function alert(str) {
+  const alert = document.createElement("div");
+  alert.className = "alert";
+  alert.textContent = str;
+  alerts.prepend(alert);
+  if (alerts.children.length > 5) {
+    alerts.children[alerts.children.length - 1].remove();
+  }
+
+  setTimeout(() => {
+    alert.classList.add("hidden");
+    alert.addEventListener("transitionend", () => {
+      alert.remove();
+    });
+  }, ALERT_DURATION);
 }
 
 function initBoard() {
@@ -90,7 +109,7 @@ function initBoard() {
 
   for (let i = 0; i < BOARD_WIDTH; i++) {
     for (let j = 0; j < BOARD_LENGTH; j++) {
-      let tile = document.createElement("button");
+      const tile = document.createElement("button");
       tile.className = "tile";
       tile.tabIndex = "-1";
       board.appendChild(tile);
@@ -107,44 +126,71 @@ function initBoard() {
 }
 
 function startListening() {
-  document.addEventListener("click", handleMouse);
+  board.addEventListener("click", pressTile);
+  keyboard.addEventListener("click", handleMouse);
   document.addEventListener("keydown", handleKey);
+  document.addEventListener("keyup", animateKeyRelease);
 }
 
 
 function stopListening() {
-  document.removeEventListener("click", handleMouse);
+  board.removeEventListener("click", pressTile);
+  keyboard.removeEventListener("click", handleMouse);
   document.removeEventListener("keydown", handleKey);
+  document.removeEventListener("keyup", animateKeyRelease);
   board.removeEventListener("mouseover", selectTiles);
   board.removeEventListener("mouseout", deselectTiles);
 }
 
+function animateKeyRelease(e) {
+  if (e.key.match(/^[a-z]$/i)) {
+    const key = getKey(e.key);
+    key.classList.remove("pressed");
+  } else if (e.key === "Enter") {
+    keyboard.querySelector("[data-enter]").classList.remove("pressed");
+  } else if (e.key === "Backspace" || e.key === "Delete") {
+    keyboard.querySelector("[data-delete]").classList.remove("pressed");
+  } else if (e.key === "Shift") {
+    keyboard.querySelector("[data-select]").classList.remove("pressed");
+  }
+}
+
 function handleKey(e) {
   if (e.key.match(/^[a-z]$/i)) {
+    const key = getKey(e.key);
+    key.classList.add("pressed");
     pressKey(e.key);
   } else if (e.key === "Enter") {
+    keyboard.querySelector("[data-enter]").classList.add("pressed");
     submitGuess();
   } else if (e.key === "Backspace" || e.key === "Delete") {
+    keyboard.querySelector("[data-delete]").classList.add("pressed");
     deleteKey();
   } else if (e.key === "Shift") {
-    if (!guessing) {
-      nextGuessIsVertical = !nextGuessIsVertical;
-      if (selectTiles.length > 0) {
-        let temp = selectedTiles[0];
-        deselectTiles();
-        highlightTiles(temp);
-      }
+    keyboard.querySelector("[data-select]").classList.add("pressed");
+    pressSelect();
+  }
+}
+
+function pressSelect() {
+  if (!guessing) {
+    nextGuessIsVertical = !nextGuessIsVertical;
+    if (selectTiles.length > 0) {
+      let temp = selectedTiles[0];
+      deselectTiles();
+      highlightTiles(temp);
     }
-  } else if (e.key === "Escape") {
-    if (filledTiles.length == 0) {
-      const guessTiles = board.querySelectorAll("[data-active='true']");
-      guessTiles.forEach((tile) => {
-        tile.dataset.active = "false";
-        if (tile.dataset.letter == null)
-          delete tile.dataset.active;
-      });
-      disableGuessing();
+  } else {
+    while (filledTiles.length > 0) {
+      deleteKey();
     }
+    const guessTiles = board.querySelectorAll("[data-active='true']");
+    guessTiles.forEach((tile) => {
+      tile.dataset.active = "false";
+      if (tile.dataset.letter == null)
+        delete tile.dataset.active;
+    });
+    disableGuessing();
   }
 }
 
@@ -155,17 +201,47 @@ function handleMouse(e) {
     submitGuess();
   } else if (e.target.matches("[data-delete]")) {
     deleteKey();
-  } else if (e.target.matches(".tile")) {
-    pressTile(e.target);
+  } else if (e.target.matches("[data-select]")) {
+    pressSelect();
+  } else if (e.target.matches("[data-giveup]")) {
+    giveUpModal.showModal();
+    giveUpModal.addEventListener("click", handleGiveUpModal);
   }
 }
 
-function pressTile(tile) {
+function handleGiveUpModal(e) {
+  if (e.target.matches(".confirm")) {
+    showResults();
+  }
+  giveUpModal.removeEventListener("click", handleGiveUpModal);
+  giveUpModal.close();
+}
+
+function handleResultsModal(e) {
+  resultsModal.removeEventListener("click", resultsModal);
+  resultsModal.close();
+}
+
+function showResults() {
+  stopListening();
+  if (hasWon) { // if game is won
+    alert("You win!");
+  } else { // if game is lost
+    alert("You lose :(");
+  }
+  setTimeout(() => {
+    resultsModal.showModal();
+    resultsModal.addEventListener("click", handleResultsModal);
+  }, ALERT_DURATION);
+}
+
+function pressTile(e) {
+  const tile = e.target;
   tile.blur();
   if (guessing) return;
 
   if (selectedTiles.length < correctWord.length) {
-    print("Guess must be exactly " + correctWord.length + " letters");
+    alert("Guess must be " + correctWord.length + " letters long");
     return;
   }
 
@@ -194,13 +270,13 @@ function pressTile(tile) {
     }
   });
 
-  if (!hasConnected) {
-    print("Guess must be connected to existing word");
+  if (guessCount > 0 && !hasConnected) {
+    alert("Guess must be connected");
     return;
   }
 
   if (!hasDisconnected) {
-    print("Already guessed");
+    alert("Already guessed");
     return;
   }
 
@@ -209,7 +285,7 @@ function pressTile(tile) {
   let firstIndex = getIndex(selectedTiles[0])
   if (firstIndex - inc > 0) {
     if (board.children[firstIndex - inc].dataset.letter) {
-      print("Guess must be exactly " + correctWord.length + " letters");
+      alert("Guess must be " + correctWord.length + " letters long");
       return;
     }
   }
@@ -218,7 +294,7 @@ function pressTile(tile) {
   let lastIndex = getIndex(selectedTiles[correctWord.length - 1])
   if (lastIndex < NUM_TILES - inc) {
     if (board.children[lastIndex + inc].dataset.letter) {
-      print("Guess must be exactly " + correctWord.length + " letters");
+      alert("Guess must be " + correctWord.length + " letters long");
       return;
     }
   }  
@@ -226,7 +302,7 @@ function pressTile(tile) {
 
   selectedTiles.forEach((tile) => {
     tile.dataset.active = 'true';
-    tile.dataset.selected = 'false';
+    tile.classList.remove("selected");
   });
   selectedTiles.length = 0;
   enableGuessing();
@@ -240,11 +316,12 @@ function disableGuessing() {
   guessing = false;
   board.addEventListener("mouseover", selectTiles);
   board.addEventListener("mouseout", deselectTiles);
+  keyboard.querySelector("[data-select]").textContent = "Rotate Guess";
 }
 
 function deselectTiles() {
   selectedTiles.forEach((tile) => {
-    tile.dataset.selected = "false";
+    tile.classList.remove("selected");
   });
   selectedTiles.length = 0;
 }
@@ -260,13 +337,13 @@ function highlightTiles(tile) {
   if (nextGuessIsVertical) {
     for (let i = tileIndex; i < tileIndex + correctWord.length*BOARD_LENGTH; i+=BOARD_LENGTH) {
       if (i % BOARD_LENGTH < tileIndex % BOARD_LENGTH) break;
-      board.children[i].dataset.selected = "true";
+      board.children[i].classList.add("selected");
       selectedTiles.push(board.children[i]);
     }
   } else {
     for (let i = tileIndex; i < tileIndex + correctWord.length; i++) {
       if (i % BOARD_LENGTH < tileIndex % BOARD_WIDTH) break;
-      board.children[i].dataset.selected = "true";
+      board.children[i].classList.add("selected");
       selectedTiles.push(board.children[i]);
     }
   }
@@ -276,7 +353,7 @@ function enableGuessing() {
   guessing = true;
   board.removeEventListener("mouseover", selectTiles);
   board.removeEventListener("mouseout", deselectTiles);
-
+  keyboard.querySelector("[data-select]").textContent = "Change Tiles";
 }
 
 function pressKey(key) {
@@ -299,7 +376,7 @@ function submitGuess() {
   if (!guessing) return;
   const guessTiles = board.querySelectorAll("[data-letter][data-active='true']");
   if (guessTiles.length < correctWord.length) {
-    print("Not enough letters");
+    alert("Not enough letters");
     return;
   }
   
@@ -308,7 +385,7 @@ function submitGuess() {
   }, "");
 
   if (binarySearch(ALL_WORDS, guess) < 0) {
-    print(guess + " is not in word list");
+    alert("\"" + guess.toUpperCase() + "\" is not in word list");
     return;
   }
 
@@ -345,12 +422,13 @@ function submitGuess() {
     if (word.length <= 1) continue;
 
     if (binarySearch(ALL_WORDS, word) < 0) {
-      print(word + " is not in word list");
+      alert("\"" + word.toUpperCase() + "\" is not in word list");
       return;
     }
   }
 
   // guess submitted
+  guessCount++;
   nextGuessIsVertical = !nextGuessIsVertical;
   disableGuessing();
   checkAccuracy(guessTiles, guess);
@@ -362,12 +440,12 @@ function submitGuess() {
 
 function checkAccuracy(tiles, guess) {
   if (guess == correctWord) {
-    print("You win!");
-    stopListening();
     tiles.forEach((tile) => {
       const key = getKey(tile.dataset.letter);
       correctLetter(key, tile);
     });
+    hasWon = true;
+    showResults();
     return;
   }
   const wrongSpotTiles = [];
@@ -376,7 +454,7 @@ function checkAccuracy(tiles, guess) {
     const key = getKey(tile.dataset.letter);
     if (!correctWord.includes(tile.dataset.letter)) { // gray
       wrongLetter(key, tile);
-    } else if (correctWord[index] == tile.dataset.letter) { // green
+    } else if (correctWord[index] == tile.dataset.letter) { // lawngreen
       correctLetter(key, tile);
       answer = answer.substring(0,index) + '.' + answer.substring(index+1);
     } else { // yellow
