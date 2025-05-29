@@ -2,6 +2,7 @@ import { ALL_WORDS } from "./words.js";
 
 let correctWord = "ghost";
 let guessCount = 0;
+let lettersHidden = false;
 
 const BOARD_WIDTH = 15;
 const BOARD_LENGTH = BOARD_WIDTH;
@@ -204,35 +205,78 @@ function handleMouse(e) {
   } else if (e.target.matches("[data-select]")) {
     pressSelect();
   } else if (e.target.matches("[data-giveup]")) {
-    giveUpModal.showModal();
+    giveUpModal.style.display = "block";
     giveUpModal.addEventListener("click", handleGiveUpModal);
   }
 }
 
 function handleGiveUpModal(e) {
   if (e.target.matches(".confirm")) {
+    giveUpModal.removeEventListener("click", handleGiveUpModal);
+    giveUpModal.style.display = "none";
     showResults();
+  } else if (e.target.matches(".close")) {
+    giveUpModal.removeEventListener("click", handleGiveUpModal);
+    giveUpModal.style.display = "none";
   }
-  giveUpModal.removeEventListener("click", handleGiveUpModal);
-  giveUpModal.close();
+  
 }
 
 function handleResultsModal(e) {
-  resultsModal.removeEventListener("click", resultsModal);
-  resultsModal.close();
+  if (e.target.matches(".close")) {
+    resultsModal.removeEventListener("click", resultsModal);
+    resultsModal.style.display = "none";
+  }
 }
+
 
 function showResults() {
   stopListening();
   if (hasWon) { // if game is won
     alert("You win!");
+    resultsModal.children[0].insertAdjacentHTML("beforeend", "<p>Congratulations!</p>");
   } else { // if game is lost
-    alert("You lose :(");
+    resultsModal.children[0].insertAdjacentHTML("beforeend", "<p>Better luck next time!</p>");
   }
-  setTimeout(() => {
-    resultsModal.showModal();
-    resultsModal.addEventListener("click", handleResultsModal);
-  }, ALERT_DURATION);
+  resultsModal.children[0].insertAdjacentHTML("beforeend", "<p>The word was \"" + correctWord.toUpperCase() + "\"</p><p>Guesses used: " + guessCount + "</p>");
+  resultsModal.style.display = "block";
+  resultsModal.addEventListener("click", handleResultsModal);
+
+  // convert giveup button to results button
+  const resultsButton = keyboard.querySelector("[data-giveup]");
+  resultsButton.addEventListener("click", reviewResults);
+  resultsButton.textContent = "Results";
+
+  // convert select button to hide letters button
+  const hideLettersButton = keyboard.querySelector("[data-select]");
+  hideLettersButton.addEventListener("click", hideShowLetters);
+  hideLettersButton.textContent = "Hide Letters";
+}
+
+function hideShowLetters(e) {
+  const letters = board.querySelectorAll("[data-letter]");
+  if (lettersHidden) {
+    letters.forEach((letter) => {
+      letter.classList.remove("hidden");
+    });
+    keyboard.querySelectorAll("[data-key]").forEach((key) => {
+      key.classList.remove("hidden");
+    });
+    e.target.textContent = "Hide Letters";
+  } else {
+    letters.forEach((letter) => {
+      letter.classList.add("hidden");
+    });
+    keyboard.querySelectorAll("[data-key]").forEach((key) => {
+      key.classList.add("hidden");
+    });
+    e.target.textContent = "Show Letters";
+  }
+  lettersHidden = !lettersHidden;
+}
+
+function reviewResults() {
+  resultsModal.style.display = "block";
 }
 
 function pressTile(e) {
@@ -350,6 +394,7 @@ function highlightTiles(tile) {
 }
 
 function enableGuessing() {
+  
   guessing = true;
   board.removeEventListener("mouseover", selectTiles);
   board.removeEventListener("mouseout", deselectTiles);
