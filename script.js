@@ -84,6 +84,7 @@ const filledTiles = [];
 const selectedTiles = [];
 
 let guessing;
+let gameOver = false;
 let hasWon = false;
 let nextGuessIsVertical = false;
 
@@ -182,8 +183,12 @@ function handleKey(e) {
     keyboard.querySelector("[data-delete]").classList.add("pressed");
     deleteKey();
   } else if (e.key === "Shift") {
-    keyboard.querySelector("[data-select]").classList.add("pressed");
-    pressSelect();
+    const button = keyboard.querySelector("[data-select]");
+    button.classList.add("pressed");
+    if (gameOver)
+      hideShowLetters(button);
+    else
+      pressSelect();
   } else if (e.key === "Escape") {
     document.querySelectorAll(".modal").forEach((modal) => {
       modal.style.display = "none";
@@ -267,11 +272,11 @@ function showResults() {
 
   // convert select button to hide letters button
   const hideLettersButton = keyboard.querySelector("[data-select]");
-  hideLettersButton.addEventListener("click", hideShowLetters);
+  hideLettersButton.addEventListener("click", handleHideShowLetters);
   hideLettersButton.textContent = "Hide Letters";
 }
 
-function hideShowLetters(e) {
+function hideShowLetters(button) {
   const letters = board.querySelectorAll("[data-letter]");
   if (lettersHidden) {
     letters.forEach((letter) => {
@@ -280,7 +285,7 @@ function hideShowLetters(e) {
     keyboard.querySelectorAll("[data-key]").forEach((key) => {
       key.classList.remove("hidden");
     });
-    e.target.textContent = "Hide Letters";
+    button.textContent = "Hide Letters";
   } else {
     letters.forEach((letter) => {
       letter.classList.add("hidden");
@@ -288,9 +293,14 @@ function hideShowLetters(e) {
     keyboard.querySelectorAll("[data-key]").forEach((key) => {
       key.classList.add("hidden");
     });
-    e.target.textContent = "Show Letters";
+    button.textContent = "Show Letters";
   }
   lettersHidden = !lettersHidden;
+}
+
+function handleHideShowLetters(e) {
+  const button = e.target;
+  hideShowLetters(button);
 }
 
 function reviewResults() {
@@ -507,6 +517,7 @@ function checkAccuracy(tiles, guess) {
       correctLetter(key, tile);
     });
     hasWon = true;
+    gameOver = true;
     showResults();
     return;
   }
