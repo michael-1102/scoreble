@@ -177,8 +177,10 @@ function handleKey(e) {
     key.classList.add("pressed");
     pressKey(e.key);
   } else if (e.key === "Enter") {
-    keyboard.querySelector("[data-enter]").classList.add("pressed");
-    submitGuess();
+    if (!(document.activeElement instanceof HTMLButtonElement)) {
+      keyboard.querySelector("[data-enter]").classList.add("pressed");
+      submitGuess();
+    }
   } else if (e.key === "Backspace" || e.key === "Delete") {
     keyboard.querySelector("[data-delete]").classList.add("pressed");
     deleteKey();
@@ -400,7 +402,7 @@ function deselectTiles() {
 
 function selectTiles(e) {
   let tile = e.target;
-  if (tile.className != "tile") return;
+  if (!tile.matches(".tile")) return;
   highlightTiles(tile);
 }
 
