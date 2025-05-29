@@ -115,7 +115,7 @@ function initBoard() {
     for (let j = 0; j < BOARD_LENGTH; j++) {
       const tile = document.createElement("button");
       tile.className = "tile";
-      tile.tabIndex = "-1";
+      //tile.tabIndex = "-1";
       board.appendChild(tile);
     }
   }
@@ -135,6 +135,13 @@ function startListening() {
   document.addEventListener("keydown", handleKey);
   document.addEventListener("keyup", animateKeyRelease);
 
+  board.addEventListener("mouseover", selectTiles);
+  board.addEventListener("mouseout", handleMouseOut);
+
+  board.querySelectorAll(".tile").forEach((tile) => {
+    tile.addEventListener("focus", focusSelectTiles);
+  });
+
   helpModal.addEventListener("click", handleHelpModal);
   giveUpModal.addEventListener("click", handleGiveUpModal);
   resultsModal.addEventListener("click", handleResultsModal);
@@ -146,7 +153,11 @@ function stopListening() {
   board.removeEventListener("click", pressTile);
   keyboard.removeEventListener("click", handleMouse);
   board.removeEventListener("mouseover", selectTiles);
-  board.removeEventListener("mouseout", deselectTiles);
+  board.removeEventListener("mouseout", handleMouseOut);
+
+  board.querySelectorAll(".tile").forEach((tile) => {
+    tile.removeEventListener("focus", focusSelectTiles);
+  });
 
   giveUpModal.removeEventListener("click", handleGiveUpModal);
 }
@@ -175,15 +186,15 @@ function handleKey(e) {
   if (e.key.match(/^[a-z]$/i)) {
     const key = getKey(e.key);
     key.classList.add("pressed");
-    pressKey(e.key);
+    if (!gameOver) pressKey(e.key);
   } else if (e.key === "Enter") {
     if (!(document.activeElement instanceof HTMLButtonElement)) {
       keyboard.querySelector("[data-enter]").classList.add("pressed");
-      submitGuess();
+      if (!gameOver) submitGuess();
     }
   } else if (e.key === "Backspace" || e.key === "Delete") {
     keyboard.querySelector("[data-delete]").classList.add("pressed");
-    deleteKey();
+    if (!gameOver) deleteKey();
   } else if (e.key === "Shift") {
     const button = keyboard.querySelector("[data-select]");
     button.classList.add("pressed");
@@ -201,7 +212,7 @@ function handleKey(e) {
 function pressSelect() {
   if (!guessing) {
     nextGuessIsVertical = !nextGuessIsVertical;
-    if (selectTiles.length > 0) {
+    if (selectedTiles.length > 0) {
       let temp = selectedTiles[0];
       deselectTiles();
       highlightTiles(temp);
@@ -257,6 +268,7 @@ function handleHelpModal(e) {
 }
 
 function showResults() {
+  gameOver = true;
   stopListening();
   if (hasWon) { // if game is won
     showAlert("You win!");
@@ -308,6 +320,7 @@ function handleHideShowLetters(e) {
 function reviewResults() {
   resultsModal.style.display = "block";
 }
+
 
 function pressTile(e) {
   const tile = e.target;
@@ -388,9 +401,13 @@ function getIndex(tile) {
 
 function disableGuessing() {
   guessing = false;
-  board.addEventListener("mouseover", selectTiles);
-  board.addEventListener("mouseout", deselectTiles);
   keyboard.querySelector("[data-select]").textContent = "Rotate Guess";
+}
+
+function handleMouseOut() {
+  if (guessing) return;
+  if (document.activeElement.matches(".tile")) return;
+  deselectTiles();
 }
 
 function deselectTiles() {
@@ -401,6 +418,17 @@ function deselectTiles() {
 }
 
 function selectTiles(e) {
+  if (guessing) return;
+  if (document.activeElement.matches(".tile")) return;
+  let tile = e.target;
+  if (!tile.matches(".tile")) return;
+  highlightTiles(tile);
+}
+
+function focusSelectTiles(e) {
+  if (guessing) return;
+  deselectTiles();
+
   let tile = e.target;
   if (!tile.matches(".tile")) return;
   highlightTiles(tile);
@@ -425,8 +453,6 @@ function highlightTiles(tile) {
 
 function enableGuessing() {
   guessing = true;
-  board.removeEventListener("mouseover", selectTiles);
-  board.removeEventListener("mouseout", deselectTiles);
   keyboard.querySelector("[data-select]").textContent = "Change Tiles";
 }
 
@@ -458,9 +484,11 @@ function submitGuess() {
     return word + tile.dataset.letter;
   }, "");
 
+  let invalidWord = false;
+
   if (binarySearch(ALL_WORDS, guess) < 0) {
-    showAlert("\"" + guess.toUpperCase() + "\" is not in word list");
-    return;
+    notInListAlert(guess, guessTiles);
+    invalidWord = true;
   }
 
   // for vertical word, check to left and right
@@ -474,6 +502,7 @@ function submitGuess() {
   for (let i = 0; i < guessTiles.length; i++) {
     let tile = guessTiles[i];
     let word = tile.dataset.letter;
+    let wordTiles = [];
 
     //TODO: check if out of bounds
     let prevTile = board.children[getIndex(tile) - inc];
@@ -481,14 +510,19 @@ function submitGuess() {
   
     while (prevTile.dataset.letter) {
       word = prevTile.dataset.letter + word;
+      wordTiles.push(prevTile);
+      wordTiles
       prevTile = board.children[getIndex(tile) - num * inc];
       num++;
     }
+
+    wordTiles.push(tile);
   
     let nextTile = board.children[getIndex(tile) + inc];
     num = 2;
     while (nextTile.dataset.letter) {
       word += nextTile.dataset.letter;
+      wordTiles.push(nextTile);
       nextTile = board.children[getIndex(tile) + num * inc];
       num++;
     }
@@ -496,10 +530,12 @@ function submitGuess() {
     if (word.length <= 1) continue;
 
     if (binarySearch(ALL_WORDS, word) < 0) {
-      showAlert("\"" + word.toUpperCase() + "\" is not in word list");
-      return;
+      notInListAlert(word, wordTiles);
+      invalidWord = true;
     }
   }
+
+  if (invalidWord) return;
 
   // guess submitted
   guessCount++;
@@ -512,6 +548,20 @@ function submitGuess() {
   filledTiles.length = 0;
 }
 
+function notInListAlert(word, wordTiles) {
+  showAlert("\"" + word.toUpperCase() + "\" is not in word list");
+  wordTiles.forEach((tile) => {
+    tile.classList.add("shake");
+    tile.addEventListener(
+      "animationend",
+      () => {
+        tile.classList.remove("shake");
+      },
+      { once: true },
+    );
+  });
+}
+
 function checkAccuracy(tiles, guess) {
   if (guess == correctWord) {
     tiles.forEach((tile) => {
@@ -519,7 +569,6 @@ function checkAccuracy(tiles, guess) {
       correctLetter(key, tile);
     });
     hasWon = true;
-    gameOver = true;
     showResults();
     return;
   }
