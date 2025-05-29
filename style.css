@@ -4,8 +4,28 @@
 }
 
 h1 {
- text-align: center;
- font-size: xx-large;
+  text-align: center;
+  font-size: xx-large;
+  anchor-name: --thumb;
+}
+
+#menu-button-container {
+  position-anchor: --thumb;
+  position: absolute;
+  left: anchor(center);
+  transform: translate(700%, 50%);
+  bottom: anchor(center);
+}
+
+.menu-button {
+  line-height: 0px;
+  font-size: large;
+  font-weight: bold;
+  padding: 0px;
+  width: 30px;
+  height: 30px;
+  border-radius: 30px;
+  border: 2px solid black;
 }
 
 button {

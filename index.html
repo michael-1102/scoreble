@@ -2,10 +2,14 @@
 <html>
 <head>
 <link rel="stylesheet" href="style.css">
+<script src="script.js" type="module"></script>
+
 </head>
 <body>
 <h1>Scoreble</h1>
-<script src="script.js" type="module"></script>
+<div id="menu-button-container">
+  <button class="menu-button" data-help>?</button>
+</div>
 <div class="modal" id="giveup">
   <div class="modal-content">
     <button class="close">&times;</button>
@@ -16,6 +20,13 @@
 <div class="modal" id="results">
   <div class="modal-content">
     <button class="close">&times;</button>
+  </div>
+</div>
+<div class="modal" id="help">
+  <div class="modal-content">
+    <button class="close">&times;</button>
+    <h2>How To Play</h2>
+    <p>Instructions coming soon.</p>
   </div>
 </div>
 

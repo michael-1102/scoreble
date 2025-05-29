@@ -78,6 +78,8 @@ const board = document.getElementById("board");
 const alerts = document.getElementById("alert-container");
 const giveUpModal = document.getElementById("giveup");
 const resultsModal = document.getElementById("results");
+const helpModal = document.getElementById("help");
+const menu = document.getElementById("menu-button-container");
 const filledTiles = [];
 const selectedTiles = [];
 
@@ -87,7 +89,7 @@ let nextGuessIsVertical = false;
 
 initBoard();
 
-function alert(str) {
+function showAlert(str) {
   const alert = document.createElement("div");
   alert.className = "alert";
   alert.textContent = str;
@@ -131,17 +133,29 @@ function startListening() {
   keyboard.addEventListener("click", handleMouse);
   document.addEventListener("keydown", handleKey);
   document.addEventListener("keyup", animateKeyRelease);
-}
 
+  helpModal.addEventListener("click", handleHelpModal);
+  giveUpModal.addEventListener("click", handleGiveUpModal);
+  resultsModal.addEventListener("click", handleResultsModal);
+
+  menu.addEventListener("click", handleMenu);
+}
 
 function stopListening() {
   board.removeEventListener("click", pressTile);
   keyboard.removeEventListener("click", handleMouse);
-  document.removeEventListener("keydown", handleKey);
-  document.removeEventListener("keyup", animateKeyRelease);
   board.removeEventListener("mouseover", selectTiles);
   board.removeEventListener("mouseout", deselectTiles);
+
+  giveUpModal.removeEventListener("click", handleGiveUpModal);
 }
+
+function handleMenu(e) {
+  if (e.target.matches("[data-help]")) {
+    helpModal.style.display = "block";
+  }
+}
+
 
 function animateKeyRelease(e) {
   if (e.key.match(/^[a-z]$/i)) {
@@ -170,6 +184,10 @@ function handleKey(e) {
   } else if (e.key === "Shift") {
     keyboard.querySelector("[data-select]").classList.add("pressed");
     pressSelect();
+  } else if (e.key === "Escape") {
+    document.querySelectorAll(".modal").forEach((modal) => {
+      modal.style.display = "none";
+    });
   }
 }
 
@@ -206,41 +224,41 @@ function handleMouse(e) {
     pressSelect();
   } else if (e.target.matches("[data-giveup]")) {
     giveUpModal.style.display = "block";
-    giveUpModal.addEventListener("click", handleGiveUpModal);
   }
 }
 
 function handleGiveUpModal(e) {
   if (e.target.matches(".confirm")) {
-    giveUpModal.removeEventListener("click", handleGiveUpModal);
     giveUpModal.style.display = "none";
     showResults();
-  } else if (e.target.matches(".close")) {
-    giveUpModal.removeEventListener("click", handleGiveUpModal);
+    } else if (e.target.matches(".close")) {
     giveUpModal.style.display = "none";
   }
-  
+
 }
 
 function handleResultsModal(e) {
   if (e.target.matches(".close")) {
-    resultsModal.removeEventListener("click", resultsModal);
     resultsModal.style.display = "none";
   }
 }
 
+function handleHelpModal(e) {
+  if (e.target.matches(".close")) {
+    helpModal.style.display = "none";
+  }
+}
 
 function showResults() {
   stopListening();
   if (hasWon) { // if game is won
-    alert("You win!");
+    showAlert("You win!");
     resultsModal.children[0].insertAdjacentHTML("beforeend", "<p>Congratulations!</p>");
   } else { // if game is lost
     resultsModal.children[0].insertAdjacentHTML("beforeend", "<p>Better luck next time!</p>");
   }
   resultsModal.children[0].insertAdjacentHTML("beforeend", "<p>The word was \"" + correctWord.toUpperCase() + "\"</p><p>Guesses used: " + guessCount + "</p>");
   resultsModal.style.display = "block";
-  resultsModal.addEventListener("click", handleResultsModal);
 
   // convert giveup button to results button
   const resultsButton = keyboard.querySelector("[data-giveup]");
@@ -285,7 +303,7 @@ function pressTile(e) {
   if (guessing) return;
 
   if (selectedTiles.length < correctWord.length) {
-    alert("Guess must be " + correctWord.length + " letters long");
+    showAlert("Guess must be " + correctWord.length + " letters long");
     return;
   }
 
@@ -315,12 +333,12 @@ function pressTile(e) {
   });
 
   if (guessCount > 0 && !hasConnected) {
-    alert("Guess must be connected");
+    showAlert("Guess must be connected");
     return;
   }
 
   if (!hasDisconnected) {
-    alert("Already guessed");
+    showAlert("Already guessed");
     return;
   }
 
@@ -329,7 +347,7 @@ function pressTile(e) {
   let firstIndex = getIndex(selectedTiles[0])
   if (firstIndex - inc > 0) {
     if (board.children[firstIndex - inc].dataset.letter) {
-      alert("Guess must be " + correctWord.length + " letters long");
+      showAlert("Guess must be " + correctWord.length + " letters long");
       return;
     }
   }
@@ -338,7 +356,7 @@ function pressTile(e) {
   let lastIndex = getIndex(selectedTiles[correctWord.length - 1])
   if (lastIndex < NUM_TILES - inc) {
     if (board.children[lastIndex + inc].dataset.letter) {
-      alert("Guess must be " + correctWord.length + " letters long");
+      showAlert("Guess must be " + correctWord.length + " letters long");
       return;
     }
   }  
@@ -394,7 +412,6 @@ function highlightTiles(tile) {
 }
 
 function enableGuessing() {
-  
   guessing = true;
   board.removeEventListener("mouseover", selectTiles);
   board.removeEventListener("mouseout", deselectTiles);
@@ -421,7 +438,7 @@ function submitGuess() {
   if (!guessing) return;
   const guessTiles = board.querySelectorAll("[data-letter][data-active='true']");
   if (guessTiles.length < correctWord.length) {
-    alert("Not enough letters");
+    showAlert("Not enough letters");
     return;
   }
   
@@ -430,7 +447,7 @@ function submitGuess() {
   }, "");
 
   if (binarySearch(ALL_WORDS, guess) < 0) {
-    alert("\"" + guess.toUpperCase() + "\" is not in word list");
+    showAlert("\"" + guess.toUpperCase() + "\" is not in word list");
     return;
   }
 
@@ -467,7 +484,7 @@ function submitGuess() {
     if (word.length <= 1) continue;
 
     if (binarySearch(ALL_WORDS, word) < 0) {
-      alert("\"" + word.toUpperCase() + "\" is not in word list");
+      showAlert("\"" + word.toUpperCase() + "\" is not in word list");
       return;
     }
   }
