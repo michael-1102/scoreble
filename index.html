@@ -2,24 +2,45 @@
 <html>
 <head>
 <link rel="stylesheet" href="style.css">
+<link id="favicon" rel="icon" type="image/x-icon" href="/images/light-favicon.svg?v=1">
+<title>Scoreble</title>
 <script src="script.js" type="module"></script>
 
 </head>
 <body>
 <h1>Scoreble</h1>
 <div id="menu-button-container">
+  <button class="menu-button" data-lightdark></button>
   <button class="menu-button" data-help>?</button>
+</div>
+<div class="modal" id="time-travel">
+  <div class="modal-content">    
+    <h2>Warning!</h2>
+    <div class="text"></div>
+    <div class="modal-control">
+      <div></div>
+      <button class="confirm">Aknowledge</button>
+    </div>
+  </div>
 </div>
 <div class="modal" id="giveup">
   <div class="modal-content">
     <button class="close">&times;</button>
     <p>Are you sure you want to give up?</p>
-    <button class="confirm">Confirm</button>
+    <div class="modal-control">
+      <div></div>
+      <button class="confirm">Confirm</button>
+    </div>
   </div>
 </div>
 <div class="modal" id="results">
   <div class="modal-content">
     <button class="close">&times;</button>
+    <div class="text"></div>
+    <div class="modal-control">
+      <div class="countdown"></div>
+      <button class="confirm">Admire Board</button>
+    </div>
   </div>
 </div>
 <div class="modal" id="help">

@@ -1,6 +1,45 @@
 * {
-   font-family:'Courier New', Courier, monospace;
-   color: "black";
+  --main-color: white;
+  --second-color: black;
+  --main-gray: darkgray;
+  --second-gray: gray;
+  --green: lawngreen;
+  --yellow: yellow;
+  --tile-color: #bfbc95;
+  --tile-shadow-color: #999;
+  --pressed-tile-shadow-color: #666;
+  --tile-text-color: black;
+  --tile-border-color: black;
+
+  font-family:'Courier New', Courier, monospace;
+  color: var(--second-color);
+}
+
+.dark,
+.dark * {
+  --main-color: black;
+  --second-color: white;
+  --main-gray: gray;
+  --second-gray: darkgray;
+  --green:green;
+  --yellow: goldenrod;
+  --tile-color: #2a1c1b;
+  --tile-shadow-color: #474747;
+  --pressed-tile-shadow-color: #171717;
+  --tile-text-color: #f1f1e9;
+  --tile-border-color: var(--main-gray);
+
+  color: var(--second-color);
+}
+
+body {
+  display: none;
+  background-color: var(--main-color);
+}
+
+
+svg {
+  pointer-events: none;
 }
 
 h1 {
@@ -11,9 +50,12 @@ h1 {
 
 #menu-button-container {
   position-anchor: --thumb;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
   position: absolute;
   left: anchor(center);
-  transform: translate(700%, 50%);
+  transform: translate(283%, 50%);
   bottom: anchor(center);
 }
 
@@ -25,11 +67,30 @@ h1 {
   width: 30px;
   height: 30px;
   border-radius: 30px;
-  border: 2px solid black;
+  background-color: var(--main-gray);
+  border: 2px solid var(--second-color);
+}
+
+.menu-button:disabled {
+  color: var(--second-color);
+}
+
+.menu-button:focus-visible,
+.menu-button:hover,
+.menu-button:active {
+  background-color: var(--second-gray);
 }
 
 button {
   cursor: pointer;
+  background-color: var(--main-gray);
+  border-style: solid;
+  border-color: var(--second-gray);
+}
+
+button:disabled {
+  cursor: auto;
+  color: var(--second-color);
 }
 
 
@@ -45,7 +106,7 @@ button {
 
 .tile {
   font-size: 1.5em;
-  background-color: white;
+  background-color: var(--main-color);
   border: 0.075em dotted;
   border-color: hsl(240, 2%, 23%);
   border-radius: 10%;
@@ -56,6 +117,7 @@ button {
   align-items: center;
   user-select: none;
   transition: transform 300ms ease;
+  color: var(--tile-text-color);
 }
 
 .tile.shake {
@@ -94,18 +156,17 @@ button {
 
 .arrow {
   position: absolute;
-  pointer-events: none;
 }
 
 .tile[data-active] {
-  border: 0.075em solid black;
+  border: 0.075em solid var(--tile-border-color);
 }
 
 .tile[data-letter] {
-    background-color: #bfbc95;
+  background-color: var(--tile-color);
 }
 
-.tile.selected {
+.tile.highlighted {
     border: 0.1em solid blue;
 }
 
@@ -120,6 +181,7 @@ button {
 }
 
 .key {
+  color: var(--tile-text-color);
   font-size: x-large;
   font-weight: bold;
   min-width: 2em;
@@ -130,12 +192,10 @@ button {
   display: block;
   justify-content: center;
   align-items: center;
-  background-color: #bfbc95;
-  color: black;
-  fill: black;
+  background-color: var(--tile-color);
   border-radius: 0.25em;
   user-select: none;
-  box-shadow: 0 3px #999;
+  box-shadow: 0 3px var(--tile-shadow-color);
 
 }
 
@@ -149,9 +209,9 @@ button {
 
 .alert {
   pointer-events: none;
-  color: white;
+  color: var(--main-color);
   font-size: 1em;
-  background-color:black;
+  background-color: var(--second-color);
   padding: 0.75em;
   border-radius: 0.25em;
   opacity: 1;
@@ -164,15 +224,28 @@ button {
 }
 
 .key:not(.hidden)[data-state="wrong"] {
-  background-color: gray;
+  background-color: var(--main-gray);
+
 }
 
 .key:not(.hidden)[data-state="correct"] {
-  background-color: lawngreen;
+  background-color: var(--green);
 }
 
 .key:not(.hidden)[data-state="wrong-spot"] {
-  background-color: yellow;
+  background-color: var(--yellow);
+}
+
+.yellow {
+  fill: var(--yellow);
+}
+
+.green {
+  fill: var(--green);
+}
+
+.gray {
+  fill: var(--main-gray);
 }
 
 .key:hover,
@@ -182,10 +255,6 @@ button {
 
 .key.large {
   grid-column: span 3;
-}
-
-.space {
-  grid-column: span 1;
 }
 
 .space.large {
@@ -203,10 +272,11 @@ button {
 .key:active,
 .key.pressed {
   transform: translateY(2px);
-  box-shadow: 0 1px #666;
+  box-shadow: 0 1px var(--pressed-tile-shadow-color);
 }
 
 .modal {
+  overflow: hidden;
   display: none; 
   position: fixed;
   z-index: 1; 
@@ -214,24 +284,26 @@ button {
   top: 0;
   width: 100%; 
   height: 100%;
-  overflow: auto;
-  background-color: rgb(0,0,0);
-  background-color: rgba(0,0,0,0.4);
+  background-color: var(--second-color);
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal.open {
+  display: block;
 }
 
 .modal-content {
-  background-color: #fefefe;
-  margin: 15% auto;
+  position: relative;
+  background-color: var(--main-color);
+  margin: 10% auto;
   padding: 20px;
-  border: 1px solid #888;
+  border: 1px solid var(--second-color);
   width: 25em;
-  min-height: 6em;
 }
 
 
 .close {
   float: right;
-  vertical-align: top;
   border: none;
   background: none;
   width: 1em;
@@ -247,14 +319,28 @@ button {
 .close:focus,
 .close:hover,
 .close:active {
-  background-color: darkgray;
+  background-color: var(--second-gray);
   outline: 0;
+}
+
+.modal-control {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  justify-items: right;
+}
+
+.countdown {
+  font-weight: bold;
+  align-self: center;
+}
+
+.bold {
+  font-weight: bold;
 }
 
 .confirm {
   font-weight: bold;
   font-size: medium;
   padding: 3%;
-  float: right;
-  vertical-align: bottom;
 }

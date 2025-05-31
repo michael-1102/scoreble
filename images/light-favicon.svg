@@ -1,0 +1,13 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    text {
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      font-size: 200px;
+      line-height: 0;
+      text-anchor: middle;
+    }
+  </style>
+  <rect width="200" height="200" x="0" y="0" rx="20" ry="20" fill="#bfbc95"/>
+  <text x="50%" y="80%" fill="black">S</text>
+</svg>
