@@ -224,7 +224,7 @@ button:disabled {
 }
 
 .key:not(.hidden)[data-state="wrong"] {
-  background-color: var(--main-gray);
+  background-color: darkgray;
 
 }
 

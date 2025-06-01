@@ -1,12 +1,17 @@
+import { ANSWERS } from "./words.js";
 import { ALL_WORDS } from "./words.js";
 
-let correctWord = "ghost";
+const startDate = new Date(2025, 4, 31);
+const todayDate = new Date();
+todayDate.setHours(0, 0, 0, 0);
+const msDifference = todayDate - startDate;
+const dayDifference = Math.floor(msDifference / 86400000);
+const correctWord = ANSWERS[dayDifference % ANSWERS.length];
 let guessCount = 0;
 let lettersHidden = false;
 
 const BOARD_WIDTH = 15;
-const BOARD_LENGTH = BOARD_WIDTH;
-const NUM_TILES = BOARD_WIDTH * BOARD_LENGTH;
+const NUM_TILES = BOARD_WIDTH * BOARD_WIDTH;
 const ALERT_DURATION = 1000;
 
 const lightIcon = String.raw`<svg viewBox = "0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
@@ -101,7 +106,7 @@ function initIfNull(item, val) {
 
 
 function init() {
-  //localStorage.clear();
+  localStorage.clear();
   initIfNull("currentStreak", "0");
   initIfNull("averageGuesses", "N/A");
   initIfNull("totalSolves", "0");
@@ -134,10 +139,8 @@ function init() {
 
   setLightDarkMode(isDark, menu.querySelector("[data-lightdark]"));
 
-  //correctWord = ALL_WORDS[Math.floor(Math.random() * ALL_WORDS.length)];
-
   for (let i = 0; i < BOARD_WIDTH; i++) {
-    for (let j = 0; j < BOARD_LENGTH; j++) {
+    for (let j = 0; j < BOARD_WIDTH; j++) {
       const tile = document.createElement("button");
       tile.className = "tile";
       board.appendChild(tile);
@@ -166,7 +169,7 @@ function init() {
   } else if (lettersHidden) {
     hideLetters(board.querySelectorAll("[data-letter]"), keyboard.querySelector("[data-select]"));
   }
-  if (localStorage.getItem("totalSolves") == "0") {
+  if (localStorage.getItem("totalSolves") == "0" && localStorage.getItem("gameState") == "ongoing") {
     openModal(helpModal);
   }
   body.style.display = "block";
@@ -472,8 +475,14 @@ function showResults(isNewGame) {
 
   countdown();
   setInterval(countdown, 1000);
-
-  openModal(resultsModal);
+  
+  if (hasWon) {
+    setTimeout(() => {
+      openModal(resultsModal);
+    }, ALERT_DURATION);
+  } else {
+    openModal(resultsModal);    
+  }
 
   // convert giveup button to results button
   const resultsButton = keyboard.querySelector("[data-giveup]");
@@ -704,7 +713,7 @@ function highlightTiles(tile) {
   unHighlightTiles();
   let tileIndex = getIndex(tile);
   if (nextGuessIsVertical) {
-    for (let i = tileIndex; i < tileIndex + correctWord.length * BOARD_LENGTH; i += BOARD_LENGTH) {
+    for (let i = tileIndex; i < tileIndex + correctWord.length * BOARD_WIDTH; i += BOARD_WIDTH) {
       if (i >= NUM_TILES) return;
       board.children[i].classList.add("highlighted");
     }
@@ -750,7 +759,7 @@ function submitGuess() {
   if (!guessing) return;
   const guessTiles = board.querySelectorAll("[data-letter][data-active='true']");
   if (guessTiles.length < correctWord.length) {
-    showAlert("Not enough letters");
+    shakeTilesAlert("Not enough letters", guessTiles);
     return;
   }
   
@@ -761,7 +770,7 @@ function submitGuess() {
   let invalidWord = false;
 
   if (binarySearch(ALL_WORDS, guess) < 0) {
-    notInListAlert(guess, guessTiles);
+    shakeTilesAlert(`"${guess.toUpperCase()}" is not in word list`, guessTiles);
     invalidWord = true;
   }
 
@@ -804,7 +813,7 @@ function submitGuess() {
     if (word.length <= 1) continue;
 
     if (binarySearch(ALL_WORDS, word) < 0) {
-      notInListAlert(word, wordTiles);
+      shakeTilesAlert(`"${word.toUpperCase()}" is not in word list`, wordTiles);
       invalidWord = true;
     }
   }
@@ -837,8 +846,8 @@ function saveGuessToStorage(tiles) {
   });
 }
 
-function notInListAlert(word, wordTiles) {
-  showAlert(`"${word.toUpperCase()}" is not in word list`);
+function shakeTilesAlert(alertText, wordTiles) {
+  showAlert(alertText);
   wordTiles.forEach((tile) => {
     tile.classList.add("shake");
     tile.addEventListener(
