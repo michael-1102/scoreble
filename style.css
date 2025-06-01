@@ -254,8 +254,7 @@ button:disabled {
 }
 
 .key:not(.hidden)[data-state="wrong"] {
-  background-color: darkgray;
-
+  background-color: gray;
 }
 
 .key:not(.hidden)[data-state="correct"] {
