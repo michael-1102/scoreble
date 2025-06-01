@@ -275,7 +275,7 @@ button:disabled {
 }
 
 .gray {
-  fill: var(--main-gray);
+  fill: gray;
 }
 
 .key:hover,

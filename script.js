@@ -204,7 +204,7 @@ function addSavedTiles() {
     guessCount = parseInt(localStorage.getItem("guessCount"));
     allTiles.forEach((tile, index) => {
       const tileData = localStorage.getItem(`tile${index}`);
-      if (tileData != "") {
+      if (tileData != null) {
         hasSavedTiles = true;
         const tokens = tileData.split(" ");
         tile.dataset.letter = tokens[0];
@@ -220,6 +220,11 @@ function addSavedTiles() {
           }
         }
       }
+      keyboard.querySelectorAll("[data-key]").forEach((key, index) => {
+        const keyboardData = localStorage.getItem(`key${index}`);
+        if (keyboardData == null) return;
+        key.dataset.state = keyboardData;
+      });
     });
     const gameState = localStorage.getItem("gameState");
     if (gameState == "won") {
@@ -232,7 +237,10 @@ function addSavedTiles() {
     return false;
   } else {
     allTiles.forEach((tile, index) => {
-      localStorage.setItem(`tile${index}`, "");
+      localStorage.removeItem(`tile${index}`);
+    });
+    keyboard.querySelectorAll("[data-key]").forEach((key, index) => {
+      localStorage.removeItem(`key${index}`);
     });
     localStorage.setItem("gameState", "ongoing");
   }
@@ -475,7 +483,10 @@ function handleTimeTravelWarningModal(e) {
     closeModal(timeTravelWarningModal);
     localStorage.setItem("currentStreak", "0");
     allTiles.forEach((tile, index) => {
-      localStorage.setItem(`tile${index}`, "");
+      localStorage.removeItem(`tile${index}`);
+    });
+    keyboard.querySelectorAll("[data-key]").forEach((key, index) => {
+      localStorage.removeItem(`key${index}`);
     });
     localStorage.setItem("gameState", "ongoing");
     const today = new Date();
@@ -892,6 +903,11 @@ function saveGuessToStorage(tiles) {
       tileData += " v " + tile.dataset.vertical;
     }
     localStorage.setItem(`tile${getIndex(tile)}`, tileData);
+  });
+  keyboard.querySelectorAll("[data-key]").forEach((key, index) => {
+    if (key.dataset.state) {
+      localStorage.setItem(`key${index}`, key.dataset.state);
+    }
   });
 }
 
