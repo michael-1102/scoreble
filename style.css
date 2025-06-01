@@ -42,21 +42,24 @@ svg {
   pointer-events: none;
 }
 
+.title-container {
+  display: grid;
+  grid-template-columns: 25vw 50vw 25vw;
+  position: relative;
+}
+
 h1 {
   text-align: center;
   font-size: xx-large;
-  anchor-name: --thumb;
 }
 
 #menu-button-container {
-  position-anchor: --thumb;
+  position: absolute;
   display: flex;
   flex-direction: row;
-  gap: 10px;
-  position: absolute;
-  left: anchor(center);
-  transform: translate(283%, 50%);
-  bottom: anchor(center);
+  gap: 0px 10px;
+  transform: translate(320%, 75%);
+  right: 50%;
 }
 
 .menu-button {
