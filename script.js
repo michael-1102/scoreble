@@ -106,7 +106,7 @@ function initIfNull(item, val) {
 
 
 function init() {
-  localStorage.clear();
+  //localStorage.clear();
   initIfNull("currentStreak", "0");
   initIfNull("averageGuesses", "N/A");
   initIfNull("totalSolves", "0");
