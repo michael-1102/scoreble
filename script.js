@@ -14,6 +14,15 @@ const BOARD_WIDTH = 15;
 const NUM_TILES = BOARD_WIDTH * BOARD_WIDTH;
 const ALERT_DURATION = 1000;
 
+const helpPages = ["<p>(More visual/detailed instructions coming soon.)</p><p>The goal of Scoreble is to guess the correct word using as few guesses as possible.</p>",
+  "<p>Guesses can be placed horizontally or vertically on the board, but every guess (except the first) must be connected to a previous guess.</p>",
+  "<p>Your guess must be exactly as long as the correct word. Any additional words created on the board by your guesses can be any length, but must be valid words according to the word list.</p>",
+  "<p>After guessing, a horizontal or vertical arrow will appear on your guess' letters. A green arrow means the letter is in the correct position. A yellow arrow means the letter is in the correct word, but in the wrong position. A gray arrow means the letter is not in the correct word at all.</p>",
+  "<p>After guessing, keys on the on-screen keyboard may change color. A green key indicates that you know where the letter is in the word. A yellow key indicates that you know the letter is in the word, but not its location. A gray key indicates that you know the letter is not in the word.</p>",
+  "<p>The game will not detect if you have made it impossible to fit the correct answer into the board, so it is up to you to press Give Up if you cannot figure out the answer and would like to know it.</p>",
+  "<p>You may press the moon/sun icon in the top right to toggle dark/light mode.</p><p>You may press the ? icon in the top right to re-open this How To Play menu.</p>"
+];
+
 const lightIcon = String.raw`<svg viewBox = "0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
       <g stroke="white" stroke-width="50" stroke-linecap="round">
         <circle cx="600" cy="600" r="300" fill="transparent"/>
@@ -77,9 +86,10 @@ let gameOver = false;
 let hasWon = false;
 let nextGuessIsVertical = false;
 let keyboardEnabled = true;
+let hasSavedTiles = false;
+let helpPage = 0;
 
 init();
-
 
 function showAlert(str) {
   const alert = document.createElement("div");
@@ -106,6 +116,9 @@ function initIfNull(item, val) {
 
 
 function init() {
+  helpModal.querySelector(".text").innerHTML = helpPages[helpPage];
+  helpModal.querySelector(".prev").disabled = true;
+
   //localStorage.clear();
   initIfNull("currentStreak", "0");
   initIfNull("averageGuesses", "N/A");
@@ -146,16 +159,11 @@ function init() {
       board.appendChild(tile);
     }
   }
-  let center = Math.floor(NUM_TILES / 2);
-  let halfWordLength = Math.floor(correctWord.length / 2);
-  let offset = (correctWord.length - 1) % 2;
-  for (let i = center - halfWordLength; i <= center + halfWordLength - offset; i++)
-    board.children[i].dataset.active = 'true';
   
   allTiles.push(...board.querySelectorAll(".tile")); 
       startListening();
   if (!addSavedTiles()) {
-    const warningText = timeTravelWarningModal.children[0].querySelector(".text");
+    const warningText = timeTravelWarningModal.querySelector(".text");
     const date = getDate("lastSavedDay", "lastSavedMonth", "lastSavedYear").toDateString();
     warningText.innerHTML = `<p>The last time you played Scoreble was: <span class="bold">${date}</span>.`;
     warningText.insertAdjacentHTML("beforeend", `<p>This date is in the future. This means you have either changed your device's time, traveled to a different time zone, or you are a time traveler.</p>`);
@@ -165,7 +173,12 @@ function init() {
     return;
   }
   if (!gameOver) {
-    enableGuessing();
+    if (hasSavedTiles) {
+      disableGuessing();
+    } else {
+      activateMiddleTiles();
+      enableGuessing();
+    }
   } else if (lettersHidden) {
     hideLetters(board.querySelectorAll("[data-letter]"), keyboard.querySelector("[data-select]"));
   }
@@ -173,6 +186,14 @@ function init() {
     openModal(helpModal);
   }
   body.style.display = "block";
+}
+
+function activateMiddleTiles() {
+  let center = Math.floor(NUM_TILES / 2);
+  let halfWordLength = Math.floor(correctWord.length / 2);
+  let offset = (correctWord.length - 1) % 2;
+  for (let i = center - halfWordLength; i <= center + halfWordLength - offset; i++)
+    board.children[i].dataset.active = 'true';
 }
 
 function addSavedTiles() {
@@ -184,6 +205,7 @@ function addSavedTiles() {
     allTiles.forEach((tile, index) => {
       const tileData = localStorage.getItem(`tile${index}`);
       if (tileData != "") {
+        hasSavedTiles = true;
         const tokens = tileData.split(" ");
         tile.dataset.letter = tokens[0];
         tile.textContent = tokens[0];
@@ -234,7 +256,7 @@ function startListening() {
     tile.addEventListener("blur", handleBlurTile);
   });
 
-  helpModal.addEventListener("click", handleGenericModal);
+  helpModal.addEventListener("click", handleHelpModal);
   giveUpModal.addEventListener("click", handleGiveUpModal);
   resultsModal.addEventListener("click", handleGenericModal);
   timeTravelWarningModal.addEventListener("click", handleTimeTravelWarningModal);
@@ -417,6 +439,37 @@ function handleGenericModal(e) {
   }
 }
 
+function handleHelpModal(e) {
+  const helpText = helpModal.querySelector(".text");
+  if (e.target.matches(".close")) {
+    helpPage = 0;
+    helpText.innerHTML = helpPages[0];
+    helpModal.querySelector(".prev").disabled = true;
+    helpModal.querySelector(".next").disabled = false;
+    closeModal(helpModal);
+  } else if (e.target.matches(".next")) {
+    if (helpPage < helpPages.length - 1) {
+      helpPage++;
+      helpText.innerHTML = helpPages[helpPage];
+
+      helpModal.querySelector(".prev").disabled = false;
+      if (helpPage == helpPages.length - 1) {
+        e.target.disabled = true;
+      }
+    }
+  } else if (e.target.matches(".prev")) {
+    if (helpPage > 0) {
+      helpPage--;
+      helpText.innerHTML = helpPages[helpPage];
+
+      if (helpPages.length > 1) helpModal.querySelector(".next").disabled = false;
+      if (helpPage == 0) {
+        e.target.disabled = true;
+      }
+    }
+  } 
+}
+
 function handleTimeTravelWarningModal(e) {
   if (e.target.matches(".confirm")) {
     closeModal(timeTravelWarningModal);
@@ -429,6 +482,7 @@ function handleTimeTravelWarningModal(e) {
     localStorage.setItem("lastSavedYear", today.getFullYear().toString());
     localStorage.setItem("lastSavedMonth", today.getMonth().toString());
     localStorage.setItem("lastSavedDay", today.getDate().toString());
+    activateMiddleTiles();
     enableGuessing();
     if (lettersHidden)
       hideLetters(board.querySelectorAll("[data-letter]"), keyboard.querySelector("[data-select]"));
@@ -457,7 +511,7 @@ function showResults(isNewGame) {
     tile.disabled = true;
   });
 
-  const resultsText = resultsModal.children[0].querySelector(".text");
+  const resultsText = resultsModal.querySelector(".text");
   if (hasWon) { // if game is won
     if (isNewGame) saveWinningScore();
     resultsText.insertAdjacentHTML("beforeend", "<p>Congratulations!</p>");
@@ -477,9 +531,7 @@ function showResults(isNewGame) {
   setInterval(countdown, 1000);
   
   if (hasWon) {
-    setTimeout(() => {
-      openModal(resultsModal);
-    }, ALERT_DURATION);
+    openModal(resultsModal);
   } else {
     openModal(resultsModal);    
   }

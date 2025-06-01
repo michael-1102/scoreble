@@ -93,6 +93,19 @@ button:disabled {
   color: var(--second-color);
 }
 
+.modal-control > button:focus, 
+.modal-control > button:hover, 
+.modal-control > button:active {
+  background-color: var(--second-gray);
+  border-color: var(--main-gray);
+  outline: 0;
+}
+
+.modal-control > button:disabled {
+  background-color: transparent;
+  border: none;
+  color: transparent;
+}
 
 #board {
   position: relative;
@@ -178,6 +191,16 @@ button:disabled {
   grid-auto-rows: 3em;
   gap: 0.25em;
   justify-content: center;
+}
+
+#help > .modal-content > .text {
+  height: 10em;
+}
+
+.modal-control > button {
+  padding: 3%;
+  font-weight: bold;
+  font-size: medium;
 }
 
 .key {
@@ -301,7 +324,6 @@ button:disabled {
   width: 25em;
 }
 
-
 .close {
   float: right;
   border: none;
@@ -337,10 +359,4 @@ button:disabled {
 
 .bold {
   font-weight: bold;
-}
-
-.confirm {
-  font-weight: bold;
-  font-size: medium;
-  padding: 3%;
 }
