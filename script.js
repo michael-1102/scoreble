@@ -301,11 +301,11 @@ function handleMenu(e) {
 function setLightDarkMode(isDark, button) {
   if (isDark == "true") {
     body.classList.add("dark");
-    favicon.href = "/images/dark-favicon.svg?v=2";
+    favicon.href = "dark-favicon.svg?v=2";
     button.innerHTML = lightIcon;
   } else {
     body.classList.remove("dark");
-    favicon.href = "/images/light-favicon.svg?v=1";
+    favicon.href = "light-favicon.svg?v=1";
     button.innerHTML = darkIcon;
   }
 }
