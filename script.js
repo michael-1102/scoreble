@@ -207,6 +207,7 @@ function addSavedTiles() {
       if (tileData != null) {
         hasSavedTiles = true;
         const tokens = tileData.split(" ");
+        if (tokens.length == 0) return;
         tile.dataset.letter = tokens[0];
         tile.textContent = tokens[0];
         tile.dataset.active = "false";
@@ -809,7 +810,7 @@ function pressKey(key) {
 }
 
 function deleteKey() {
-  if (filledTiles.length <= 0) return;
+  if (filledTiles.length == 0) return;
   filledTiles[filledTiles.length - 1].textContent = "";
   delete filledTiles[filledTiles.length - 1].dataset.letter;
   filledTiles.pop();
