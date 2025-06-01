@@ -44,7 +44,7 @@ svg {
 
 .title-container {
   display: grid;
-  grid-template-columns: 25vw 50vw 25vw;
+  grid-template-columns: auto 50vw auto;
   position: relative;
 }
 
@@ -60,6 +60,10 @@ h1 {
   gap: 0px 10px;
   transform: translate(320%, 75%);
   right: 50%;
+}
+
+button:not(.tile) {
+  touch-action: manipulation;
 }
 
 .menu-button {
@@ -183,7 +187,7 @@ button:disabled {
 }
 
 .tile.highlighted {
-    border: 0.1em solid blue;
+  border: 0.1em solid blue;
 }
 
 #keyboard {
@@ -295,6 +299,10 @@ button:disabled {
   grid-column: span 9;
 }
 
+.key:not(.xl):not(.xxl):not(.large) {
+  aspect-ratio: 1;
+}
+
 .key:active,
 .key.pressed {
   transform: translateY(2px);
@@ -327,17 +335,82 @@ button:disabled {
   width: 25em;
 }
 
+@media (any-pointer: coarse) {
+  .menu-button {
+    font-size: xxx-large;
+    width: 60px;
+    height: 60px;
+    border-radius: 50px;
+    border: 4px solid var(--second-color);
+  }
+  
+  h1 {
+    font-size: 40px;
+  }
+
+  #menu-button-container {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    gap: 0px 50px;
+    transform: translate(200%, 30%);
+    right: 50%;
+  }
+
+  #keyboard {
+    font-size: 32px;
+  }
+
+  .alert {
+    font-size: xx-large;
+  }
+
+  .arrow {
+    width: 64px;
+    height: 64px;
+  }
+  
+  .modal-content {
+    margin: 25% auto;
+    font-size: 2em;
+  }
+
+  .modal-control > button {
+    font-size: 1em;
+  }  
+
+  #board {
+    grid-template-columns: repeat(15, 50px);
+    grid-template-rows: repeat(15, auto);
+    gap: 4px;
+    padding: 16px;
+  }
+
+  .tile {
+    aspect-ratio: 1;
+    font-size: 24px;
+  }
+
+  .tile.highlighted {
+    border: 0.075em solid blue;
+  }
+}
+
+.close::before {
+  content: "\00D7";
+}
+
 .close {
   float: right;
   border: none;
   background: none;
-  width: 1em;
-  height: 1em;
-  padding: 0px;
-  line-height: 0px;
-  border-radius: 1em;
-  transform: translate(50%, -50%);
-  font-size: x-large;
+  width: 1.5em;
+  height: 1.5em;
+  padding: 0%;
+  line-height: 0%;
+  border-radius: 1.5em;
+  transform: translate(25%, -25%);
+  font-size: xx-large;
   font-family: fantasy;
 }
 

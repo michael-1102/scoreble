@@ -1,7 +1,7 @@
 import { ANSWERS } from "./words.js";
 import { ALL_WORDS } from "./words.js";
 
-const startDate = new Date(2025, 4, 31);
+const startDate = new Date(2025, 5, 1);
 const todayDate = new Date();
 todayDate.setHours(0, 0, 0, 0);
 const msDifference = todayDate - startDate;
@@ -589,7 +589,6 @@ function saveLosingScore() {
 }
 
 function getDate(dayItemName, monthItemName, yearItemName) {
-
   let day = parseInt(localStorage.getItem(dayItemName));
   if (day < 10) day = "0" + day;
   let month = parseInt(localStorage.getItem(monthItemName));
@@ -606,9 +605,7 @@ function getDate(dayItemName, monthItemName, yearItemName) {
   }
 
   const date = new Date(0);
-  date.setFullYear(year);
-  date.setMonth(month);
-  date.setDate(day);
+  date.setFullYear(year, month, day);
   date.setHours(0, 0, 0, 0);
   return date;
 }
