@@ -1,11 +1,11 @@
 import { ANSWERS } from "./words.js";
 import { ALL_WORDS } from "./words.js";
 
-const startDate = new Date(2025, 5, 1);
+const startDate = new Date(2025, 5, 2);
 const todayDate = new Date();
 todayDate.setHours(0, 0, 0, 0);
 const msDifference = todayDate - startDate;
-const dayDifference = Math.floor(msDifference / 86400000);
+const dayDifference = Math.max(0, Math.floor(msDifference / 86400000));
 const correctWord = ANSWERS[dayDifference % ANSWERS.length];
 let guessCount = 0;
 let lettersHidden = false;
