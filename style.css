@@ -144,6 +144,10 @@ button:disabled {
   animation: shake 250ms ease-in-out;
 }
 
+.tile.victory {
+  animation: shake 1s ease-in-out;
+}
+
 @keyframes shake {
   10% {
     transform: rotate(-0.03turn);

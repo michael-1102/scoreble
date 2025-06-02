@@ -929,13 +929,23 @@ function shakeTilesAlert(alertText, wordTiles) {
 function checkAccuracy(tiles, guess) {
   if (guess == correctWord) {
     tiles.forEach((tile) => {
+      tile.classList.add("victory");
       const key = getKey(tile.dataset.letter);
       correctLetter(key, tile);
+      tile.addEventListener(
+        "animationend",
+        () => {
+          tile.classList.remove("victory");
+        },
+        { once: true },
+      );
     });
     hasWon = true;
     localStorage.setItem("gameState", "won");
     showAlert("You win!");
-    showResults(true);
+    setTimeout(() => {
+      showResults(true);
+    }, ALERT_DURATION);
     return;
   }
   const wrongSpotTiles = [];
