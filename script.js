@@ -276,6 +276,7 @@ function startListening() {
 function stopListening() {
   board.removeEventListener("click", pressTile);
   keyboard.removeEventListener("click", handleMouse);
+  keyboard.addEventListener("click", animateKeyPress);
   board.removeEventListener("mouseover", handleMouseOverTile);
   board.removeEventListener("mouseout", handleMouseOutTile);
 
