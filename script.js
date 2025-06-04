@@ -15,7 +15,7 @@ const NUM_TILES = BOARD_WIDTH * BOARD_WIDTH;
 const ALERT_DURATION = 1000;
 
 const helpPages = ["<p>(More visual/detailed instructions coming soon.)</p><p>The goal of Scoreble is to guess the correct word using as few guesses as possible.</p>",
-  "<p>Guesses can be placed horizontally or vertically on the board, but every guess (except the first) must be connected to a previous guess.</p>",
+  "<p>Guesses can be placed horizontally or vertically on the board, but every guess (except the first) must use at least one letter from a previous guess.</p>",
   "<p>Your guess must be exactly as long as the correct word. Any additional words created on the board by your guesses can be any length, but must be valid words according to the word list.</p>",
   "<p>After guessing, a horizontal or vertical arrow will appear on your guess' letters. A green arrow means the letter is in the correct position. A yellow arrow means the letter is in the correct word, but in the wrong position. A gray arrow means the letter is not in the correct word at all.</p>",
   "<p>After guessing, keys on the on-screen keyboard may change color. A green key indicates that you know where the letter is in the word. A yellow key indicates that you know the letter is in the word, but not its location. A gray key indicates that you know the letter is not in the word.</p>",
@@ -700,7 +700,7 @@ function pressTile(e) {
   });
 
   if (guessCount > 0 && !hasConnected) {
-    showAlert("Guess must be connected");
+    showAlert("Guess must use existing tile(s)");
     return;
   }
 
