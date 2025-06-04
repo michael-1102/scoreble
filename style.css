@@ -1,4 +1,5 @@
 * {
+  font-size: medium;
   --main-color: white;
   --second-color: black;
   --main-gray: darkgray;
@@ -50,14 +51,14 @@ svg {
 
 h1 {
   text-align: center;
-  font-size: xx-large;
+  font-size: 2em;
 }
 
 #menu-button-container {
   position: absolute;
   display: flex;
   flex-direction: row;
-  gap: 0px 10px;
+  gap: 0em 1em;
   transform: translate(320%, 75%);
   right: 50%;
 }
@@ -67,15 +68,15 @@ button:not(.tile) {
 }
 
 .menu-button {
-  line-height: 0px;
-  font-size: large;
+  line-height: 0em;
+  font-size: 1.5em;
   font-weight: bold;
-  padding: 0px;
-  width: 30px;
-  height: 30px;
-  border-radius: 30px;
+  padding: 0em;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 100%;
   background-color: var(--main-gray);
-  border: 2px solid var(--second-color);
+  border: 0.1rem solid var(--second-color);
 }
 
 .menu-button:disabled {
@@ -93,7 +94,9 @@ button {
   background-color: var(--main-gray);
   border-style: solid;
   border-color: var(--second-gray);
+  padding: 0;
 }
+
 
 button:disabled {
   cursor: auto;
@@ -180,6 +183,8 @@ button:disabled {
 
 .arrow {
   position: absolute;
+  width: 2.5em;
+  height: 2.5em;
 }
 
 .tile[data-active] {
@@ -211,12 +216,12 @@ button:disabled {
 .modal-control > button {
   padding: 3%;
   font-weight: bold;
-  font-size: medium;
+  font-size: 1em;
 }
 
 .key {
   color: var(--tile-text-color);
-  font-size: x-large;
+  font-size: 1.5em;
   font-weight: bold;
   min-width: 2em;
   min-height: 2em;
@@ -229,7 +234,7 @@ button:disabled {
   background-color: var(--tile-color);
   border-radius: 0.25em;
   user-select: none;
-  box-shadow: 0 3px var(--tile-shadow-color);
+  box-shadow: 0 0.075em var(--tile-shadow-color);
 
 }
 
@@ -308,8 +313,8 @@ button:disabled {
 
 .key:active,
 .key.pressed {
-  transform: translateY(2px);
-  box-shadow: 0 1px var(--pressed-tile-shadow-color);
+  transform: translateY(0.05em);
+  box-shadow: 0 0.025em var(--pressed-tile-shadow-color);
 }
 
 .modal {
@@ -332,71 +337,10 @@ button:disabled {
 .modal-content {
   position: relative;
   background-color: var(--main-color);
-  margin: 10% auto;
-  padding: 20px;
-  border: 1px solid var(--second-color);
+  margin: 20vh auto 0;
+  padding: 1em;
+  border: 0.075em solid var(--second-color);
   width: 25em;
-}
-
-@media (any-pointer: coarse) {
-  .menu-button {
-    font-size: xxx-large;
-    width: 60px;
-    height: 60px;
-    border-radius: 50px;
-    border: 4px solid var(--second-color);
-  }
-  
-  h1 {
-    font-size: 40px;
-  }
-
-  #menu-button-container {
-    position: absolute;
-    display: flex;
-    flex-direction: row;
-    gap: 0px 50px;
-    transform: translate(200%, 30%);
-    right: 50%;
-  }
-
-  #keyboard {
-    font-size: 32px;
-  }
-
-  .alert {
-    font-size: xx-large;
-  }
-
-  .arrow {
-    width: 64px;
-    height: 64px;
-  }
-  
-  .modal-content {
-    margin: 25% auto;
-    font-size: 2em;
-  }
-
-  .modal-control > button {
-    font-size: 1em;
-  }  
-
-  #board {
-    grid-template-columns: repeat(15, 50px);
-    grid-template-rows: repeat(15, auto);
-    gap: 4px;
-    padding: 16px;
-  }
-
-  .tile {
-    aspect-ratio: 1;
-    font-size: 24px;
-  }
-
-  .tile.highlighted {
-    border: 0.075em solid blue;
-  }
 }
 
 .close::before {
@@ -413,7 +357,7 @@ button:disabled {
   line-height: 0%;
   border-radius: 1.5em;
   transform: translate(25%, -25%);
-  font-size: xx-large;
+  font-size: 2em;
   font-family: fantasy;
 }
 
