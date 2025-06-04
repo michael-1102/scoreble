@@ -125,6 +125,9 @@ button:disabled {
   gap: 0.25em;
   padding: 1em;
   justify-content: center;
+  user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
 }
 
 .tile {
@@ -138,7 +141,6 @@ button:disabled {
   display: flex;
   justify-content: center;
   align-items: center;
-  user-select: none;
   transition: transform 300ms ease;
   color: var(--tile-text-color);
 }
@@ -207,6 +209,9 @@ button:disabled {
   grid-auto-rows: 3em;
   gap: 0.25em;
   justify-content: center;
+  user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
 }
 
 #help > .modal-content > .text {
@@ -233,7 +238,6 @@ button:disabled {
   align-items: center;
   background-color: var(--tile-color);
   border-radius: 0.25em;
-  user-select: none;
   box-shadow: 0 0.075em var(--tile-shadow-color);
 
 }
@@ -305,10 +309,6 @@ button:disabled {
 
 .key.xxl {
   grid-column: span 9;
-}
-
-.key:not(.xl):not(.xxl):not(.large) {
-  aspect-ratio: 1;
 }
 
 .key:active,
