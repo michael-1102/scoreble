@@ -343,6 +343,12 @@ button:disabled {
   width: 25em;
 }
 
+@media (any-pointer: coarse) {
+  * {
+    font-size: x-large;
+  }
+}
+
 .close::before {
   content: "\00D7";
 }
