@@ -849,27 +849,34 @@ function submitGuess() {
     let word = tile.dataset.letter;
     let wordTiles = [];
 
-    //TODO: check if out of bounds
-    let prevTile = board.children[getIndex(tile) - inc];
-    let num = 2;
-  
-    while (prevTile.dataset.letter) {
-      word = prevTile.dataset.letter + word;
-      wordTiles.push(prevTile);
-      wordTiles
-      prevTile = board.children[getIndex(tile) - num * inc];
-      num++;
+    let prevIndex = getIndex(tile) - inc;
+    if (prevIndex >= 0) {
+      let prevTile = board.children[prevIndex];
+      let num = 2;
+      while (prevTile.dataset.letter) {
+        word = prevTile.dataset.letter + word;
+        wordTiles.push(prevTile);
+        prevIndex = getIndex(tile) - num * inc;
+        if (prevIndex < 0) break;
+        prevTile = board.children[prevIndex];
+        num++;
+      }
     }
 
     wordTiles.push(tile);
-  
-    let nextTile = board.children[getIndex(tile) + inc];
-    num = 2;
-    while (nextTile.dataset.letter) {
-      word += nextTile.dataset.letter;
-      wordTiles.push(nextTile);
-      nextTile = board.children[getIndex(tile) + num * inc];
-      num++;
+
+    let nextIndex = getIndex(tile) + inc;
+    if (nextIndex < NUM_TILES) {
+      let nextTile = board.children[getIndex(tile) + inc];
+      let num = 2;
+      while (nextTile.dataset.letter) {
+        word += nextTile.dataset.letter;
+        wordTiles.push(nextTile);
+        nextIndex = getIndex(tile) + num * inc;
+        if (nextIndex >= NUM_TILES) break;
+        nextTile = board.children[nextIndex];
+        num++;
+      }
     }
 
     if (word.length <= 1) continue;
