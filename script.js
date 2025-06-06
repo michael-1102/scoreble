@@ -244,6 +244,7 @@ function addSavedTiles() {
       localStorage.removeItem(`key${index}`);
     });
     localStorage.setItem("gameState", "ongoing");
+    localStorage.setItem("guessCount", "0");
   }
   localStorage.setItem("lastSavedYear", today.getFullYear().toString());
   localStorage.setItem("lastSavedMonth", today.getMonth().toString());
@@ -491,6 +492,7 @@ function handleTimeTravelWarningModal(e) {
       localStorage.removeItem(`key${index}`);
     });
     localStorage.setItem("gameState", "ongoing");
+    localStorage.setItem("guessCount", "0");
     const today = new Date();
     localStorage.setItem("lastSavedYear", today.getFullYear().toString());
     localStorage.setItem("lastSavedMonth", today.getMonth().toString());
