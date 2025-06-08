@@ -51,7 +51,7 @@ export const ANSWERS = [
 "staff",
 "trade",
 "baker",
-"days",
+"cheese",
 "fleet",
 "sand",
 "grand",
