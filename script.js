@@ -586,6 +586,9 @@ function saveWinningScore() {
     yesterday.setHours(0, 0, 0, 0);
     if (lastWinDate.getTime() === yesterday.getTime()) {
       localStorage.setItem("currentStreak", (++currentStreak).toString());
+    } else {
+      localStorage.setItem("currentStreak", "1");
+      currentStreak = 1;
     }
   }
 
