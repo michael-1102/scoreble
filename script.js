@@ -52,7 +52,7 @@ const horizontalArrow = String.raw`<svg
           width="40"
           height="40"
           class="arrow COLOR">
-          <rect x="27.5" y="14" width="6" height="12"/>
+          <rect x="27.5" y="12.5" width="6" height="15"/>
           <path d="M 28.5 18 v 4 l 4 -2 z" fill="black" stroke-width="0.2" stroke="black"></path>
         </svg>`;
 const verticalArrow = String.raw`<svg
@@ -61,7 +61,7 @@ const verticalArrow = String.raw`<svg
           width="40"
           height="40"
           class="arrow COLOR">
-          <rect x="14" y="27.5" width="12" height="6"/>
+          <rect x="12.5" y="27.5" width="15" height="6"/>
           <path d="M 18 28.5 h 4 l -2 4 z" fill="black" stroke-width="0.2" stroke="black"></path>
         </svg>`;
 
