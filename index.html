@@ -12,7 +12,39 @@
   <div></div>
     <h1>Scoreble</h1>
     <div id="menu-button-container">
-      <button class="menu-button" data-lightdark></button>
+      <button class="menu-button" data-colorblind>
+        <svg id="eye-icon" viewBox = "0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
+          <g fill="none" stroke-width="50" stroke-linecap="round">
+            <path d="M 200 600 C 466.67 300 733.33 300 1000 600 C 733.33 900 466.67 900 200 600 z"/>
+            <circle cx="600" cy="600" r="130"/>
+          </g>
+          <g id="eye-slash" fill="none" stroke-width="50" stroke-linecap="round">
+            <line x1="200" y1="800" x2="1000" y2="400"/>
+          </g>
+        </svg>
+      </button>
+      <button class="menu-button" data-lightdark>
+          <svg viewBox = "0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
+            <g id="moon-icon">
+              <mask id="mask">
+                <circle cx="600" cy="600" r="300" fill="white"/>
+                <circle cx="680" cy="560" r="250" fill="black"/>
+              </mask>
+              <rect x="0" y="0" width="1200" height="1200" mask="url(#mask)"/>
+            </g>
+            <g id="sun-icon" stroke="white" stroke-width="50" stroke-linecap="round">
+              <circle cx="600" cy="600" r="300" fill="transparent"/>
+              <line x1="600" x2="600" y1="975" y2="1050"/>
+              <line x1="600" x2="600" y1="225" y2="150"/>
+              <line x1="975" x2="1050" y1="600" y2="600"/>  
+              <line x1="225" x2="150" y1="600" y2="600"/>
+              <line x1="865.17" x2="918.20" y1="865.17" y2="918.20"/>
+              <line x1="334.83" x2="281.80" y1="334.83" y2="281.80"/>  
+              <line x1="334.83" x2="281.80" y1="865.17" y2="918.20"/>
+              <line x1="865.17" x2="918.20" y1="334.83" y2="281.80"/>
+            </g>
+          </svg>
+      </button>
       <button class="menu-button" data-help>?</button>
     </div>
 </div>

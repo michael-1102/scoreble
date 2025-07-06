@@ -16,6 +16,17 @@
   color: var(--second-color);
 }
 
+.color-change,
+.color-change *:not(svg, g) {
+  transition: 
+    background-color 1s ease-in-out,
+    border-color 1s ease-in-out,
+    color 1s ease-in-out,
+    stroke 1s ease-in-out,
+    fill 1s ease-in-out,
+    box-shadow 1s ease-in-out;
+}
+
 .dark,
 .dark * {
   --main-color: black;
@@ -29,13 +40,38 @@
   --pressed-tile-shadow-color: #171717;
   --tile-text-color: #f1f1e9;
   --tile-border-color: var(--main-gray);
-
+  
   color: var(--second-color);
+}
+
+.colorblind,
+.colorblind * {
+  --green: #f5793a;
+  --yellow: #85c0f9;
 }
 
 body {
   display: none;
   background-color: var(--main-color);
+}
+
+#moon-icon {
+  transform-origin: center;
+  transition: all 1s;
+}
+
+#sun-icon {
+  transform-origin: center;
+  transform: rotate(360deg) scale(0);
+  transition: all 1s;
+}
+
+.dark #moon-icon {
+  transform: rotate(360deg) scale(0);
+}
+
+.dark #sun-icon {
+  transform: rotate(0deg) scale(1);
 }
 
 
@@ -59,7 +95,7 @@ h1 {
   display: flex;
   flex-direction: row;
   gap: 0em 1em;
-  transform: translate(320%, 75%);
+  transform: translate(200%, 75%);
   right: 50%;
 }
 
@@ -77,6 +113,14 @@ button:not(.tile) {
   border-radius: 100%;
   background-color: var(--main-gray);
   border: 0.1rem solid var(--second-color);
+}
+
+#eye-icon {
+  stroke: var(--second-color);
+}
+
+.colorblind #eye-slash {
+  opacity: 0;
 }
 
 .menu-button:disabled {
@@ -141,7 +185,6 @@ button:disabled {
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: transform 300ms ease;
   color: var(--tile-text-color);
 }
 
@@ -258,7 +301,10 @@ button:disabled {
   padding: 0.75em;
   border-radius: 0.25em;
   opacity: 1;
-  transition: opacity 500ms ease-in-out;
+  transition: opacity 500ms ease-in-out,
+              background-color 1s ease-in-out,
+              border-color 1s ease-in-out,
+              color 1s ease-in-out;
   margin-bottom: 0.5em;
 }
 

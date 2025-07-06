@@ -20,31 +20,9 @@ const helpPages = ["<p>(More visual/detailed instructions coming soon.)</p><p>Th
   "<p>After guessing, a horizontal or vertical arrow will appear on your guess' letters. A green arrow means the letter is in the correct position. A yellow arrow means the letter is in the correct word, but in the wrong position. A gray arrow means the letter is not in the correct word at all.</p>",
   "<p>After guessing, keys on the on-screen keyboard may change color. A green key indicates that you know where the letter is in the word. A yellow key indicates that you know the letter is in the word, but not its location. A gray key indicates that you know the letter is not in the word.</p>",
   "<p>The game will not detect if you have made it impossible to fit the correct answer into the board, so it is up to you to press Give Up if you cannot figure out the answer and would like to know it.</p>",
-  "<p>You may press the moon/sun icon in the top right to toggle dark/light mode.</p><p>You may press the ? icon in the top right to re-open this How To Play menu.</p>"
+  "<p>You may press the eye icon in the top right to toggle high-contrast/colorblind mode. A slash through the eye means that this mode is off. In high-contrast mode, green (correct location) becomes orange and yellow (incorrect location) becomes blue.</p>",
+  "<p> You may press the moon / sun icon in the top right to toggle dark / light mode.</p > <p>You may press the ? icon in the top right to re-open this How To Play menu.</p>"
 ];
-
-const lightIcon = String.raw`<svg viewBox = "0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
-      <g stroke="white" stroke-width="50" stroke-linecap="round">
-        <circle cx="600" cy="600" r="300" fill="transparent"/>
-        <line x1="600" x2="600" y1="975" y2="1050"/>
-        <line x1="600" x2="600" y1="225" y2="150"/>
-        <line x1="975" x2="1050" y1="600" y2="600"/>  
-        <line x1="225" x2="150" y1="600" y2="600"/>
-        <line x1="865.17" x2="918.20" y1="865.17" y2="918.20"/>
-        <line x1="334.83" x2="281.80" y1="334.83" y2="281.80"/>  
-        <line x1="334.83" x2="281.80" y1="865.17" y2="918.20"/>
-        <line x1="865.17" x2="918.20" y1="334.83" y2="281.80"/>
-      </g>
-    </svg>`;
-
-const darkIcon = String.raw`<svg viewBox = "0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
-      <mask id="mask">
-        <circle cx="600" cy="600" r="300" fill="white"/>
-        <circle cx="680" cy="560" r="250" fill="black"/>
-      </mask>
-      <rect x="0" y="0" width="1200" height="1200" mask="url(#mask)"/>
-
-    </svg>`;
 
 const horizontalArrow = String.raw`<svg
           xmlns="http://www.w3.org/2000/svg"
@@ -64,8 +42,6 @@ const verticalArrow = String.raw`<svg
           <rect x="12.5" y="27.5" width="15" height="6"/>
           <path d="M 18 28.5 h 4 l -2 4 z" fill="black" stroke-width="0.2" stroke="black"></path>
         </svg>`;
-
-
 
 const body = document.body;
 const favicon = document.getElementById("favicon");
@@ -147,10 +123,17 @@ function init() {
   let isDark = localStorage.getItem("isDark");
   if (isDark == null) {
     isDark == "false";
-    localStorage.setItem("dark", "false");
+    localStorage.setItem("isDark", "false");
+  }
+
+  let isColorblind = localStorage.getItem("isColorblind");
+  if (isColorblind == null) {
+    isColorblind = "false";
+    localStorage.setItem("isColorblind", "false");
   }
 
   setLightDarkMode(isDark, menu.querySelector("[data-lightdark]"));
+  setColorblindMode(isColorblind, menu.querySelector("[data-colorblind]"));
 
   for (let i = 0; i < BOARD_WIDTH; i++) {
     for (let j = 0; j < BOARD_WIDTH; j++) {
@@ -164,7 +147,7 @@ function init() {
       startListening();
   if (!addSavedTiles()) {
     const warningText = timeTravelWarningModal.querySelector(".text");
-    const date = getDate("lastSavedDay", "lastSavedMonth", "lastSavedYear").toDateString();
+    const date = getDate("lastSaved ", "lastSavedMonth", "lastSavedYear").toDateString();
     warningText.innerHTML = `<p>The last time you played Scoreble was: <span class="bold">${date}</span>.`;
     warningText.insertAdjacentHTML("beforeend", `<p>This date is in the future. This means you have either changed your device's time, traveled to a different time zone, or you are a time traveler.</p>`);
     warningText.insertAdjacentHTML("beforeend", `<p>Pressing Acknowledge will let you play today's game, but you will lose your streak. Your other options are to wait until or set your device's time to a date on or after: <span class="bold">${date}</span>.</p>`);    
@@ -305,20 +288,43 @@ function handleMenu(e) {
     e.target.disabled = true;
     setTimeout(() => {
       e.target.disabled = false;
-    }, 150);
+    }, 1000);
+  } else if (e.target.matches("[data-colorblind]")) {
+    let isColorblind = localStorage.getItem("isColorblind");
+    if (isColorblind == "true") {
+      isColorblind = "false";
+      localStorage.setItem("isColorblind", "false");
+    } else {
+      isColorblind = "true";
+      localStorage.setItem("isColorblind", "true");
+    }
+    setColorblindMode(isColorblind, e.target);
+  }
+}
+
+function setColorblindMode(isColorblind, button) {
+  if (isColorblind == "true") {
+    body.classList.add("colorblind");
+  } else {
+    body.classList.remove("colorblind");
   }
 }
 
 function setLightDarkMode(isDark, button) {
   if (isDark == "true") {
+    body.classList.add("color-change");
     body.classList.add("dark");
     favicon.href = "dark-favicon.svg?v=2";
-    button.innerHTML = lightIcon;
+    setTimeout(() => {
+      body.classList.remove("color-change");
+    }, 1000);
   } else {
+    body.classList.add("color-change");
     body.classList.remove("dark");
-    favicon.href = "light-favicon.svg?v=1";
-    button.innerHTML = darkIcon;
-  }
+    favicon.href = "light-favicon.svg?v=2";
+    setTimeout(() => {
+      body.classList.remove("color-change");
+    }, 1000);  }
 }
 
 function animateKeyRelease(e) {
@@ -992,7 +998,7 @@ function getKey(char) {
 }
 
 function wrongLetter(key, tile) {
-  if (key.dataset.state != "correct" && key.dataset.state != "wrong-spot") key.dataset.state = "wrong";
+  if (!(key.dataset.state == "correct" || key.dataset.state == "wrong-spot")) key.dataset.state = "wrong";
   if (nextGuessIsVertical) {
     tile.insertAdjacentHTML("beforeend", horizontalArrow.replace("COLOR", "gray"));
     tile.dataset.horizontal = "gray";
