@@ -2,6 +2,7 @@ import { ANSWERS } from "./words.js";
 import { ALL_WORDS } from "./words.js";
 
 
+  
 const startDate = new Date(2025, 5, 2);
 const todayDate = new Date();
 todayDate.setHours(0, 0, 0, 0);
@@ -64,6 +65,7 @@ let hasWon = false;
 let nextGuessIsVertical = false;
 let keyboardEnabled = true;
 let hasSavedTiles = false;
+let modalsDisabled = false;
 let helpPage = 0;
 
 init();
@@ -445,6 +447,7 @@ function handleGiveUpModal(e) {
 }
 
 function openModal(modal) {
+  if (modalsDisabled) return;
   keyboardEnabled = false;
   modal.classList.add("open");
   document.querySelectorAll("button:not([disabled])").forEach((button) => {
@@ -543,6 +546,7 @@ function countdown() {
 
 function showResults(isNewGame) {
   gameOver = true;
+  body.classList.add("game-over");
   stopListening();
   allTiles.forEach((tile) => {
     tile.disabled = true;
@@ -567,10 +571,14 @@ function showResults(isNewGame) {
   countdown();
   setInterval(countdown, 1000);
   
-  if (hasWon) {
-    openModal(resultsModal);
+  if (isNewGame) {
+    modalsDisabled = true;
+    setTimeout(() => {
+      modalsDisabled = false;
+      openModal(resultsModal);
+    }, ALERT_DURATION);
   } else {
-    openModal(resultsModal);    
+    openModal(resultsModal);
   }
 
   // convert giveup button to results button
@@ -579,7 +587,6 @@ function showResults(isNewGame) {
   resultsButton.textContent = "Results";
 
   // convert select button to hide letters button
-  body.classList.add("guessing");
   const hideLettersButton = keyboard.querySelector("[data-select]");
   hideLettersButton.addEventListener("click", handleHideShowLetters);
   document.getElementById("select-text").textContent = "Hide Letters";
@@ -979,9 +986,7 @@ function checkAccuracy(tiles, guess) {
     hasWon = true;
     localStorage.setItem("gameState", "won");
     showAlert("You win!");
-    setTimeout(() => {
-      showResults(true);
-    }, ALERT_DURATION);
+    showResults(true);
     return;
   }
   const wrongSpotTiles = [];

@@ -141,7 +141,7 @@ button:not(.tile) {
     box-shadow 1s ease-in-out;
 }
 
-.guessing .key[data-select] {
+.guessing .key[data-select], .game-over .key[data-select] {
   width: 90%;
 }
 
@@ -150,7 +150,7 @@ button:not(.tile) {
   stroke: var(--second-color);
 }
 
-.guessing #rotation-icon {
+.guessing #rotation-icon, .game-over #rotation-icon {
   display: none;
 }
 
@@ -324,7 +324,7 @@ button:disabled {
   font-size: 1em;
 }
 
-.guessing #select-text {
+.guessing #select-text, .game-over #select-text {
   width: 100%;
   display: block;
 }
