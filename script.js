@@ -1,6 +1,7 @@
 import { ANSWERS } from "./words.js";
 import { ALL_WORDS } from "./words.js";
 
+
 const startDate = new Date(2025, 5, 2);
 const todayDate = new Date();
 todayDate.setHours(0, 0, 0, 0);
@@ -292,9 +293,11 @@ function handleMenu(e) {
   } else if (e.target.matches("[data-colorblind]")) {
     let isColorblind = localStorage.getItem("isColorblind");
     if (isColorblind == "true") {
+      showAlert("Colorblind Mode: Off");
       isColorblind = "false";
       localStorage.setItem("isColorblind", "false");
     } else {
+      showAlert("Colorblind Mode: On");
       isColorblind = "true";
       localStorage.setItem("isColorblind", "true");
     }
@@ -364,13 +367,26 @@ function handleKey(e) {
     }
   } else if (e.key === "Escape") {
     closeModal(document.querySelector(".modal.open"));
+  } else if (e.key === "ArrowRight") {
+    document.querySelector(".next").click();
+  } else if (e.key === "ArrowLeft") {
+    document.querySelector(".prev").click();
+  }
+}
+
+function rotateGuess() {
+  nextGuessIsVertical = !nextGuessIsVertical;
+  if (nextGuessIsVertical) {
+    document.getElementById("rotation-icon-selector").classList.add("right");
+  } else {
+    document.getElementById("rotation-icon-selector").classList.remove("right");
   }
 }
 
 function pressSelect() {
   if (!guessing) {
     let highlightedTiles = board.querySelectorAll(".tile.highlighted");
-    nextGuessIsVertical = !nextGuessIsVertical;
+    rotateGuess();
     if (highlightedTiles.length > 0) {
       unHighlightTiles();
       let temp = highlightedTiles[0];
@@ -563,9 +579,10 @@ function showResults(isNewGame) {
   resultsButton.textContent = "Results";
 
   // convert select button to hide letters button
+  body.classList.add("guessing");
   const hideLettersButton = keyboard.querySelector("[data-select]");
   hideLettersButton.addEventListener("click", handleHideShowLetters);
-  hideLettersButton.textContent = "Hide Letters";
+  document.getElementById("select-text").textContent = "Hide Letters";
 }
 
 function saveWinningScore() {
@@ -643,7 +660,7 @@ function hideShowLetters(button) {
     keyboard.querySelectorAll("[data-key]").forEach((key) => {
       key.classList.remove("hidden");
     });
-    button.textContent = "Hide Letters";
+    document.getElementById("select-text").textContent = "Hide Letters";
   } else {
     hideLetters(letters, button);
   }
@@ -661,7 +678,7 @@ function hideLetters(letters, button) {
   keyboard.querySelectorAll("[data-key]").forEach((key) => {
     key.classList.add("hidden");
   });
-  button.textContent = "Show Letters";
+  document.getElementById("select-text").textContent = "Show Letters";
 }
 
 function handleHideShowLetters(e) {
@@ -753,10 +770,10 @@ function getIndex(tile) {
 
 function disableGuessing() {
   guessing = false;
+  body.classList.remove("guessing");
   allTiles.forEach((tile) => {
     tile.disabled = false;
   });
-  keyboard.querySelector("[data-select]").textContent = "Rotate Guess";
 }
 
 
@@ -806,10 +823,10 @@ function unHighlightTiles() {
 
 function enableGuessing() {
   guessing = true;
+  body.classList.add("guessing");
   allTiles.forEach((tile) => {
     tile.disabled = true;
   });
-  keyboard.querySelector("[data-select]").textContent = "Change Tiles";
 }
 
 function pressKey(key) {
@@ -902,7 +919,7 @@ function submitGuess() {
 
   // guess submitted
   guessCount++;
-  nextGuessIsVertical = !nextGuessIsVertical;
+  rotateGuess();
   disableGuessing();
   checkAccuracy(guessTiles, guess);
   guessTiles.forEach((tile) => {

@@ -74,8 +74,7 @@ body {
   transform: rotate(0deg) scale(1);
 }
 
-
-svg {
+svg, span {
   pointer-events: none;
 }
 
@@ -117,6 +116,42 @@ button:not(.tile) {
 
 #eye-icon {
   stroke: var(--second-color);
+}
+
+#select-container {
+  display: flex;
+  grid-column: span 10;
+  justify-content: right;
+}
+
+.key[data-select] {
+  width: 40%;
+  gap: 0.5em;
+  transition: 
+    width 0.5s ease-in-out;
+}
+
+.color-change .key[data-select] {
+  width: 40%;
+  gap: 0.5em;
+  transition: 
+    width 0.5s ease-in-out,
+    background-color 1s ease-in-out,
+    border-color 1s ease-in-out,
+    box-shadow 1s ease-in-out;
+}
+
+.guessing .key[data-select] {
+  width: 90%;
+}
+
+#rotation-icon {
+  width: 6em;
+  stroke: var(--second-color);
+}
+
+.guessing #rotation-icon {
+  display: none;
 }
 
 .colorblind #eye-slash {
@@ -268,6 +303,7 @@ button:disabled {
 }
 
 .key {
+  text-wrap: nowrap;
   color: var(--tile-text-color);
   font-size: 1.5em;
   font-weight: bold;
@@ -282,8 +318,32 @@ button:disabled {
   background-color: var(--tile-color);
   border-radius: 0.25em;
   box-shadow: 0 0.075em var(--tile-shadow-color);
-
 }
+
+.key span {
+  font-size: 1em;
+}
+
+.guessing #select-text {
+  width: 100%;
+  display: block;
+}
+
+#select-text {
+  overflow: hidden;
+  width: 0%;
+  display: none;
+}
+
+#rotation-icon-selector {
+  transition: 
+    transform 0.2s ease-in-out;
+}
+
+#rotation-icon-selector.right {
+  transform: translate(1300px);
+}
+
 
 #alert-container {
   position: fixed;
@@ -324,6 +384,8 @@ button:disabled {
   background-color: var(--yellow);
 }
 
+
+
 .yellow {
   fill: var(--yellow);
 }
@@ -349,13 +411,12 @@ button:disabled {
   grid-column: span 4;
 }
 
+
 .key.xl {
-  grid-column: span 7;
+  grid-column: span 6;
 }
 
-.key.xxl {
-  grid-column: span 9;
-}
+
 
 .key:active,
 .key.pressed {
@@ -380,6 +441,12 @@ button:disabled {
   display: block;
 }
 
+@keyframes animatetop {
+  from {top: -300px; opacity: 0}
+  to {top: 0; opacity: 1}
+}
+
+
 .modal-content {
   position: relative;
   background-color: var(--main-color);
@@ -387,6 +454,8 @@ button:disabled {
   padding: 1em;
   border: 0.075em solid var(--second-color);
   width: 25em;
+  animation-name: animatetop;
+  animation-duration: 0.5s;
 }
 
 @media (any-pointer: coarse) {

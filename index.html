@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <link rel="stylesheet" href="style.css">
 <link id="favicon" rel="icon" type="image/x-icon" href="light-favicon.svg?v=1">
 <title>Scoreble</title>
@@ -84,8 +85,8 @@
     <h2>How To Play</h2>
     <div class="text"></div>
     <div class="modal-control">
-      <button class="prev"><-</button>      
-      <button class="next">-></button>
+      <button class="prev">&lt;-</button>      
+      <button class="next">-&gt;</button>
     </div>
   </div>
 </div>
@@ -96,7 +97,26 @@
 <div data-keyboard id="keyboard">
       <button data-giveup class="key xl">Give Up</button>
       <div class="space large"></div>
-      <button data-select class="key xxl">Change Tiles</button>
+      <div id="select-container">
+        <div id="space"></div>
+        <button data-select class="key">
+          <span id="select-text">Change Tiles</span>
+          <svg id="rotation-icon" viewBox = "0 0 2400 1200" xmlns="http://www.w3.org/2000/svg">
+            <g stroke-width="50" stroke-linecap="round">
+            <circle id="rotation-icon-selector" cx="550" cy="600" r="500" stroke="none" fill="gray"/>
+            <line x1="150" y1="700" x2="750" y2="700"/>
+            <line x1="150" y1="500" x2="750" y2="500"/>
+            <line x1="950" y1="600" x2="650" y2="750"/>
+            <line x1="950" y1="600" x2="650" y2="450"/>
+
+            <line x1="1950" y1="225" x2="1950" y2="775"/>
+            <line x1="1750" y1="225" x2="1750" y2="775"/>
+            <line x1="1850" y1="975" x2="1700" y2="675"/>
+            <line x1="1850" y1="975" x2="2000" y2="675"/>
+            </g>
+        </svg>
+        </button>
+      </div>
 
       <button class="key" data-key="Q">Q</button>
       <button class="key" data-key="W">W</button>
