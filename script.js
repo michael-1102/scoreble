@@ -1,8 +1,8 @@
 import { ANSWERS } from "./words.js";
 import { ALL_WORDS } from "./words.js";
 
-
   
+
 const startDate = new Date(2025, 5, 2);
 const todayDate = new Date();
 todayDate.setHours(0, 0, 0, 0);
@@ -150,7 +150,7 @@ function init() {
       startListening();
   if (!addSavedTiles()) {
     const warningText = timeTravelWarningModal.querySelector(".text");
-    const date = getDate("lastSaved ", "lastSavedMonth", "lastSavedYear").toDateString();
+    const date = getDate("lastSavedDay", "lastSavedMonth", "lastSavedYear").toDateString();
     warningText.innerHTML = `<p>The last time you played Scoreble was: <span class="bold">${date}</span>.`;
     warningText.insertAdjacentHTML("beforeend", `<p>This date is in the future. This means you have either changed your device's time, traveled to a different time zone, or you are a time traveler.</p>`);
     warningText.insertAdjacentHTML("beforeend", `<p>Pressing Acknowledge will let you play today's game, but you will lose your streak. Your other options are to wait until or set your device's time to a date on or after: <span class="bold">${date}</span>.</p>`);    
@@ -597,7 +597,7 @@ function saveWinningScore() {
   if (averageGuesses == "N/A") {
     averageGuesses = 0;
   } else {
-    averageGuesses = parseInt(averageGuesses);
+    averageGuesses = parseFloat(averageGuesses);
   }
   const totalSolves = parseInt(localStorage.getItem("totalSolves"));
   let currentStreak = parseInt(localStorage.getItem("currentStreak"));
