@@ -1,6 +1,5 @@
 import { ANSWERS } from "./words.js";
 import { ALL_WORDS } from "./words.js";
-
   
 
 const startDate = new Date(2025, 5, 2);
@@ -22,7 +21,7 @@ const helpPages = ["<p>(More visual/detailed instructions coming soon.)</p><p>Th
   "<p>After guessing, a horizontal or vertical arrow will appear on your guess' letters. A green arrow means the letter is in the correct position. A yellow arrow means the letter is in the correct word, but in the wrong position. A gray arrow means the letter is not in the correct word at all.</p>",
   "<p>After guessing, keys on the on-screen keyboard may change color. A green key indicates that you know where the letter is in the word. A yellow key indicates that you know the letter is in the word, but not its location. A gray key indicates that you know the letter is not in the word.</p>",
   "<p>The game will not detect if you have made it impossible to fit the correct answer into the board, so it is up to you to press Give Up if you cannot figure out the answer and would like to know it.</p>",
-  "<p>You may press the eye icon in the top right to toggle high-contrast/colorblind mode. A slash through the eye means that this mode is off. In high-contrast mode, green (correct location) becomes orange and yellow (incorrect location) becomes blue.</p>",
+  "<p>You may press the gear icon to open the settings. There you can turn on colorblind (high-contrast) mode, turning green (correct location) into orange and yellow (incorrect location) into blue. Still having trouble with the colors? Turn on symbol mode, which turns the triangle on any guessed letter into a circle if the letter is in the right spot, or a square if it is in the wrong spot.</p>",
   "<p> You may press the moon / sun icon in the top right to toggle dark / light mode.</p > <p>You may press the ? icon in the top right to re-open this How To Play menu.</p>"
 ];
 
@@ -33,7 +32,15 @@ const horizontalArrow = String.raw`<svg
           height="40"
           class="arrow COLOR">
           <rect x="27.5" y="12.5" width="6" height="15"/>
-          <path d="M 28.5 18 v 4 l 4 -2 z" fill="black" stroke-width="0.2" stroke="black"></path>
+          <g id="triangle" fill="black" stroke="black">
+            <path d="M 28.5 18 v 4 l 4 -2 z" stroke-width="0.2"/>
+          </g>
+          <g id="square" fill="none" stroke="none">
+            <path d="M 28.5 18 v 4 h 4 v -4 z" stroke-width="0.2"/>
+          </g>
+          <g id="circle" fill="none" stroke="none">
+            <circle cx="30.5" cy="20" r="2"/>
+          </g>
         </svg>`;
 const verticalArrow = String.raw`<svg
           xmlns="http://www.w3.org/2000/svg"
@@ -42,7 +49,15 @@ const verticalArrow = String.raw`<svg
           height="40"
           class="arrow COLOR">
           <rect x="12.5" y="27.5" width="15" height="6"/>
-          <path d="M 18 28.5 h 4 l -2 4 z" fill="black" stroke-width="0.2" stroke="black"></path>
+          <g id="triangle" fill="black" stroke="black">
+            <path d="M 18 28.5 h 4 l -2 4 z" stroke-width="0.2"/>
+          </g>
+          <g id="square" fill="none" stroke="none">
+            <path d="M 18 28.5 h 4 v 4 h -4 z" stroke-width="0.2"/>
+          </g>
+          <g id="circle" fill="none" stroke="none">
+            <circle cx="20" cy="30.5" r="2"/>
+          </g>
         </svg>`;
 
 const body = document.body;
@@ -50,11 +65,12 @@ const favicon = document.getElementById("favicon");
 const keyboard = document.getElementById("keyboard");
 const board = document.getElementById("board");
 const alerts = document.getElementById("alert-container");
-const giveUpModal = document.getElementById("giveup");
-const resultsModal = document.getElementById("results");
-const timeTravelWarningModal = document.getElementById("time-travel");
+const giveUpModal = document.getElementById("give-up-modal");
+const resultsModal = document.getElementById("results-modal");
+const timeTravelWarningModal = document.getElementById("time-travel-modal");
 const countdownElement = resultsModal.querySelector(".countdown");
-const helpModal = document.getElementById("help");
+const helpModal = document.getElementById("help-modal");
+const settingsModal = document.getElementById("settings-modal");
 const menu = document.getElementById("menu-button-container");
 const filledTiles = [];
 
@@ -133,10 +149,21 @@ function init() {
   if (isColorblind == null) {
     isColorblind = "false";
     localStorage.setItem("isColorblind", "false");
+  } else if (isColorblind == "true") {
+    document.getElementById("colorblind-toggle").querySelector("input").checked = true;
   }
 
-  setLightDarkMode(isDark, menu.querySelector("[data-lightdark]"));
-  setColorblindMode(isColorblind, menu.querySelector("[data-colorblind]"));
+  let hasSymbols = localStorage.getItem("hasSymbols");
+  if (hasSymbols == null) {
+    hasSymbols = "false";
+    localStorage.setItem("hasSymbols", "false");
+  } else if (hasSymbols == "true") {
+    document.getElementById("symbols-toggle").querySelector("input").checked = true;
+  }
+
+  setLightDarkMode(isDark);
+  setColorblindMode(isColorblind);
+  setSymbolsMode(hasSymbols);
 
   for (let i = 0; i < BOARD_WIDTH; i++) {
     for (let j = 0; j < BOARD_WIDTH; j++) {
@@ -166,7 +193,7 @@ function init() {
       enableGuessing();
     }
   } else if (lettersHidden) {
-    hideLetters(board.querySelectorAll("[data-letter]"), keyboard.querySelector("[data-select]"));
+    hideLetters(board.querySelectorAll("[data-letter]"));
   }
   if (localStorage.getItem("totalSolves") == "0" && localStorage.getItem("gameState") == "ongoing") {
     openModal(helpModal);
@@ -184,9 +211,7 @@ function activateMiddleTiles() {
 
 function addSavedTiles() {
   const lastSavedDate = getDate("lastSavedDay", "lastSavedMonth", "lastSavedYear");
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  if (lastSavedDate.getTime() === today.getTime()) {
+  if (lastSavedDate.getTime() === todayDate.getTime()) {
     guessCount = parseInt(localStorage.getItem("guessCount"));
     allTiles.forEach((tile, index) => {
       const tileData = localStorage.getItem(`tile${index}`);
@@ -220,7 +245,7 @@ function addSavedTiles() {
     } else if (gameState == "lost") {
       showResults(false);
     }
-  } else if (lastSavedDate.getTime() > today.getTime()) {
+  } else if (lastSavedDate.getTime() > todayDate.getTime()) {
     return false;
   } else {
     allTiles.forEach((tile, index) => {
@@ -232,9 +257,9 @@ function addSavedTiles() {
     localStorage.setItem("gameState", "ongoing");
     localStorage.setItem("guessCount", "0");
   }
-  localStorage.setItem("lastSavedYear", today.getFullYear().toString());
-  localStorage.setItem("lastSavedMonth", today.getMonth().toString());
-  localStorage.setItem("lastSavedDay", today.getDate().toString());
+  localStorage.setItem("lastSavedYear", todayDate.getFullYear().toString());
+  localStorage.setItem("lastSavedMonth", todayDate.getMonth().toString());
+  localStorage.setItem("lastSavedDay", todayDate.getDate().toString());
   return true;
 }
 
@@ -254,6 +279,7 @@ function startListening() {
 
   helpModal.addEventListener("click", handleHelpModal);
   giveUpModal.addEventListener("click", handleGiveUpModal);
+  settingsModal.addEventListener("click", handleSettingsModal);
   resultsModal.addEventListener("click", handleGenericModal);
   timeTravelWarningModal.addEventListener("click", handleTimeTravelWarningModal);
 
@@ -276,9 +302,9 @@ function stopListening() {
 }
 
 function handleMenu(e) {
-  if (e.target.matches("[data-help]")) {
+  if (e.target.matches("#help-button")) {
     openModal(helpModal);
-  } else if (e.target.matches("[data-lightdark]")) {
+  } else if (e.target.matches("#lightdark-button")) {
     let isDark = localStorage.getItem("isDark");
     if (isDark == "true") {
       isDark = "false";
@@ -287,27 +313,45 @@ function handleMenu(e) {
       isDark = "true";
       localStorage.setItem("isDark", "true");
     }
-    setLightDarkMode(isDark, e.target);
+    setLightDarkMode(isDark);
     e.target.disabled = true;
     setTimeout(() => {
       e.target.disabled = false;
-    }, 1000);
-  } else if (e.target.matches("[data-colorblind]")) {
-    let isColorblind = localStorage.getItem("isColorblind");
-    if (isColorblind == "true") {
-      showAlert("Colorblind Mode: Off");
-      isColorblind = "false";
-      localStorage.setItem("isColorblind", "false");
-    } else {
-      showAlert("Colorblind Mode: On");
-      isColorblind = "true";
-      localStorage.setItem("isColorblind", "true");
-    }
-    setColorblindMode(isColorblind, e.target);
+    }, ALERT_DURATION);
+  } else if (e.target.matches("#settings-button")) {
+    openModal(settingsModal);
   }
 }
 
-function setColorblindMode(isColorblind, button) {
+function toggleColorblindMode() {
+  let isColorblind = localStorage.getItem("isColorblind");
+  if (isColorblind == "true") {
+    isColorblind = "false";
+    localStorage.setItem("isColorblind", "false");
+    showAlert("Colorblind Mode: Off");
+  } else {
+    isColorblind = "true";
+    localStorage.setItem("isColorblind", "true");
+    showAlert("Colorblind Mode: On");
+  }
+  setColorblindMode(isColorblind);
+}
+
+function toggleSymbolsMode() {
+  let hasSymbols = localStorage.getItem("hasSymbols");
+  if (hasSymbols == "true") {
+    hasSymbols = "false";
+    localStorage.setItem("hasSymbols", "false");
+    showAlert("Symbols Mode: Off");
+  } else {
+    hasSymbols = "true";
+    localStorage.setItem("hasSymbols", "true");
+    showAlert("Symbols Mode: On");
+  }
+  setSymbolsMode(hasSymbols);
+}
+
+function setColorblindMode(isColorblind) {
   if (isColorblind == "true") {
     body.classList.add("colorblind");
   } else {
@@ -315,21 +359,29 @@ function setColorblindMode(isColorblind, button) {
   }
 }
 
-function setLightDarkMode(isDark, button) {
+function setSymbolsMode(hasSymbols) {
+  if (hasSymbols == "true") {
+    body.classList.add("symbols");
+  } else {
+    body.classList.remove("symbols");
+  }
+}
+
+function setLightDarkMode(isDark) {
   if (isDark == "true") {
     body.classList.add("color-change");
     body.classList.add("dark");
     favicon.href = "dark-favicon.svg?v=2";
     setTimeout(() => {
       body.classList.remove("color-change");
-    }, 1000);
+    }, ALERT_DURATION);
   } else {
     body.classList.add("color-change");
     body.classList.remove("dark");
     favicon.href = "light-favicon.svg?v=2";
     setTimeout(() => {
       body.classList.remove("color-change");
-    }, 1000);  }
+    }, ALERT_DURATION);  }
 }
 
 function animateKeyRelease(e) {
@@ -337,11 +389,11 @@ function animateKeyRelease(e) {
     const key = getKey(e.key);
     key.classList.remove("pressed");
   } else if (e.key === "Enter") {
-    keyboard.querySelector("[data-enter]").classList.remove("pressed");
+    document.getElementById("enter-key").classList.remove("pressed");
   } else if (e.key === "Backspace" || e.key === "Delete") {
-    keyboard.querySelector("[data-delete]").classList.remove("pressed");
+    document.getElementById("delete-key").classList.remove("pressed");
   } else if (e.key === "Shift") {
-    keyboard.querySelector("[data-select]").classList.remove("pressed");
+    document.getElementById("select-button").classList.remove("pressed");
   }
 }
 
@@ -353,17 +405,16 @@ function handleKey(e) {
       if (!gameOver) pressKey(e.key);
     } else if (e.key === "Enter") {
       if (!(document.activeElement instanceof HTMLButtonElement)) {
-        keyboard.querySelector("[data-enter]").classList.add("pressed");
+        document.getElementById("enter-key").classList.add("pressed");
         if (!gameOver) submitGuess();
       }
     } else if (e.key === "Backspace" || e.key === "Delete") {
-      keyboard.querySelector("[data-delete]").classList.add("pressed");
+      document.getElementById("delete-key").classList.add("pressed");
       if (!gameOver) deleteKey();
     } else if (e.key === "Shift") {
-      const button = keyboard.querySelector("[data-select]");
-      button.classList.add("pressed");
+      document.getElementById("select-button").classList.add("pressed");
       if (gameOver)
-        hideShowLetters(button);
+        hideShowLetters();
       else
         pressSelect();
     }
@@ -379,9 +430,9 @@ function handleKey(e) {
 function rotateGuess() {
   nextGuessIsVertical = !nextGuessIsVertical;
   if (nextGuessIsVertical) {
-    document.getElementById("rotation-icon-selector").classList.add("right");
+    document.getElementById("rotation-slider").classList.add("right");
   } else {
-    document.getElementById("rotation-icon-selector").classList.remove("right");
+    document.getElementById("rotation-slider").classList.remove("right");
   }
 }
 
@@ -412,16 +463,16 @@ function handleMouse(e) {
   if (e.target.matches("[data-key]")) {
     animateKeyPress(e);
     pressKey(e.target.dataset.key);
-  } else if (e.target.matches("[data-enter]")) {
+  } else if (e.target.matches("#enter-key")) {
     animateKeyPress(e);
     submitGuess();
-  } else if (e.target.matches("[data-delete]")) {
+  } else if (e.target.matches("#delete-key")) {
     animateKeyPress(e);
     deleteKey();
-  } else if (e.target.matches("[data-select]")) {
+  } else if (e.target.matches("#select-button")) {
     animateKeyPress(e);
     pressSelect();
-  } else if (e.target.matches("[data-giveup]")) {
+  } else if (e.target.matches("#give-up-button")) {
     animateKeyPress(e);
     openModal(giveUpModal);
   }
@@ -506,6 +557,16 @@ function handleHelpModal(e) {
   } 
 }
 
+function handleSettingsModal(e) {
+  if (e.target.matches("#colorblind-toggle")) {
+    toggleColorblindMode();
+  } else if (e.target.matches("#symbols-toggle")) {
+    toggleSymbolsMode();
+  } else if (e.target.matches(".close")) {
+    closeModal(settingsModal);
+  }
+}
+
 function handleTimeTravelWarningModal(e) {
   if (e.target.matches(".confirm")) {
     closeModal(timeTravelWarningModal);
@@ -518,14 +579,13 @@ function handleTimeTravelWarningModal(e) {
     });
     localStorage.setItem("gameState", "ongoing");
     localStorage.setItem("guessCount", "0");
-    const today = new Date();
-    localStorage.setItem("lastSavedYear", today.getFullYear().toString());
-    localStorage.setItem("lastSavedMonth", today.getMonth().toString());
-    localStorage.setItem("lastSavedDay", today.getDate().toString());
+    localStorage.setItem("lastSavedYear", todayDate.getFullYear().toString());
+    localStorage.setItem("lastSavedMonth", todayDate.getMonth().toString());
+    localStorage.setItem("lastSavedDay", todayDate.getDate().toString());
     activateMiddleTiles();
     enableGuessing();
     if (lettersHidden)
-      hideLetters(board.querySelectorAll("[data-letter]"), keyboard.querySelector("[data-select]"));
+      hideLetters(board.querySelectorAll("[data-letter]"));
   }
 }
 
@@ -534,7 +594,12 @@ function countdown() {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1); 
   tomorrow.setHours(0, 0, 0, 0);
-  const distance = tomorrow.getTime() - now;
+  let distance;
+  if (tomorrow.getTime() === todayDate.getTime()) {
+    distance = 0; 
+  } else {
+    distance = tomorrow.getTime() - now;
+  }
   let hours = Math.floor((distance % 86400000) / 3600000);
   let minutes = Math.floor((distance % 3600000) / 60000);
   let seconds = Math.floor((distance % 60000) / 1000);
@@ -571,7 +636,7 @@ function showResults(isNewGame) {
   countdown();
   setInterval(countdown, 1000);
   
-  if (isNewGame) {
+  if (isNewGame && hasWon) {
     modalsDisabled = true;
     setTimeout(() => {
       modalsDisabled = false;
@@ -582,12 +647,12 @@ function showResults(isNewGame) {
   }
 
   // convert giveup button to results button
-  const resultsButton = keyboard.querySelector("[data-giveup]");
+  const resultsButton = document.getElementById("give-up-button");
   resultsButton.addEventListener("click", reviewResults);
   resultsButton.textContent = "Results";
 
   // convert select button to hide letters button
-  const hideLettersButton = keyboard.querySelector("[data-select]");
+  const hideLettersButton = document.getElementById("select-button");
   hideLettersButton.addEventListener("click", handleHideShowLetters);
   document.getElementById("select-text").textContent = "Hide Letters";
 }
@@ -609,9 +674,8 @@ function saveWinningScore() {
     localStorage.setItem("currentStreak", "1");
     currentStreak++;
   } else {
-
     const lastWinDate = getDate("lastWinDay", "lastWinMonth", "lastWinYear");
-    const yesterday = new Date();
+    const yesterday = new Date(todayDate.getTime());
     yesterday.setDate(yesterday.getDate() - 1); 
     yesterday.setHours(0, 0, 0, 0);
     if (lastWinDate.getTime() === yesterday.getTime()) {
@@ -622,10 +686,9 @@ function saveWinningScore() {
     }
   }
 
-  let now = new Date();
-  localStorage.setItem("lastWinYear", now.getFullYear().toString());
-  localStorage.setItem("lastWinMonth", now.getMonth().toString());
-  localStorage.setItem("lastWinDay", now.getDate().toString());
+  localStorage.setItem("lastWinYear", todayDate.getFullYear().toString());
+  localStorage.setItem("lastWinMonth", todayDate.getMonth().toString());
+  localStorage.setItem("lastWinDay", todayDate.getDate().toString());
 
   if (currentStreak > highestStreak) {
     localStorage.setItem("highestStreak", currentStreak.toString());
@@ -658,7 +721,7 @@ function getDate(dayItemName, monthItemName, yearItemName) {
   return date;
 }
 
-function hideShowLetters(button) {
+function hideShowLetters() {
   const letters = board.querySelectorAll("[data-letter]");
   if (lettersHidden) {
     letters.forEach((letter) => {
@@ -669,7 +732,7 @@ function hideShowLetters(button) {
     });
     document.getElementById("select-text").textContent = "Hide Letters";
   } else {
-    hideLetters(letters, button);
+    hideLetters(letters);
   }
   lettersHidden = !lettersHidden;
   if (lettersHidden)
@@ -678,7 +741,7 @@ function hideShowLetters(button) {
     localStorage.setItem("lettersHidden", "false");
 }
 
-function hideLetters(letters, button) {
+function hideLetters(letters) {
   letters.forEach((letter) => {
     letter.classList.add("hidden");
   });
@@ -689,8 +752,7 @@ function hideLetters(letters, button) {
 }
 
 function handleHideShowLetters(e) {
-  const button = e.target;
-  hideShowLetters(button);
+  hideShowLetters();
 }
 
 function reviewResults() {

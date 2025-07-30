@@ -114,7 +114,8 @@ button:not(.tile) {
   border: 0.1rem solid var(--second-color);
 }
 
-#eye-icon {
+#gear-icon {
+  fill: var(--second-color);
   stroke: var(--second-color);
 }
 
@@ -124,14 +125,14 @@ button:not(.tile) {
   justify-content: right;
 }
 
-.key[data-select] {
+#select-button {
   width: 40%;
   gap: 0.5em;
   transition: 
     width 0.5s ease-in-out;
 }
 
-.color-change .key[data-select] {
+.color-change #select-button {
   width: 40%;
   gap: 0.5em;
   transition: 
@@ -141,7 +142,7 @@ button:not(.tile) {
     box-shadow 1s ease-in-out;
 }
 
-.guessing .key[data-select], .game-over .key[data-select] {
+.guessing #select-button, .game-over #select-button {
   width: 90%;
 }
 
@@ -152,10 +153,6 @@ button:not(.tile) {
 
 .guessing #rotation-icon, .game-over #rotation-icon {
   display: none;
-}
-
-.colorblind #eye-slash {
-  opacity: 0;
 }
 
 .menu-button:disabled {
@@ -176,7 +173,6 @@ button {
   padding: 0;
 }
 
-
 button:disabled {
   cursor: auto;
   color: var(--second-color);
@@ -191,9 +187,7 @@ button:disabled {
 }
 
 .modal-control > button:disabled {
-  background-color: transparent;
-  border: none;
-  color: transparent;
+  visibility: hidden;
 }
 
 #board {
@@ -292,9 +286,6 @@ button:disabled {
   -webkit-user-select: none;
 }
 
-#help > .modal-content > .text {
-  height: 10em;
-}
 
 .modal-control > button {
   padding: 3%;
@@ -320,6 +311,52 @@ button:disabled {
   box-shadow: 0 0.075em var(--tile-shadow-color);
 }
 
+.toggle {
+  position: relative;
+  display: inline-block;
+}
+
+.slider {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: 5%;
+  border: none;
+  border-radius: 2em;
+  transition: .4s;
+  background-color: var(--main-gray);
+}
+
+.slider:before {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  clip-path: circle(closest-side);
+  content: "";
+  background-color: white;
+  transition: .4s;
+  width: 50%;
+  transform: translateX(10%);
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+input:checked + .slider:before {
+  transform: translateX(90%);
+}
+
+input:checked + .slider {
+  background-color: deepskyblue;
+}
+
 .key span {
   font-size: 1em;
 }
@@ -335,12 +372,12 @@ button:disabled {
   display: none;
 }
 
-#rotation-icon-selector {
+#rotation-slider {
   transition: 
     transform 0.2s ease-in-out;
 }
 
-#rotation-icon-selector.right {
+#rotation-slider.right {
   transform: translate(1300px);
 }
 
@@ -394,6 +431,22 @@ button:disabled {
   fill: var(--green);
 }
 
+
+.symbols .yellow #triangle, .symbols .green #triangle {
+  fill: none;
+  stroke: none;
+}
+
+.symbols .yellow #square {
+  fill: black;
+  stroke: black;
+}
+
+.symbols .green #circle {
+  fill: black;
+  stroke: black;
+}
+
 .gray {
   fill: gray;
 }
@@ -415,7 +468,6 @@ button:disabled {
 .key.xl {
   grid-column: span 6;
 }
-
 
 
 .key:active,
@@ -454,8 +506,19 @@ button:disabled {
   padding: 1em;
   border: 0.075em solid var(--second-color);
   width: 25em;
+  max-height: 20em;
   animation-name: animatetop;
   animation-duration: 0.5s;
+}
+
+#settings-content {
+  display: grid;
+  grid-template-columns: 80% 20%;
+}
+
+#help-modal .text {
+  height: 15em;
+  overflow-y: auto;
 }
 
 @media (any-pointer: coarse) {
@@ -469,7 +532,9 @@ button:disabled {
 }
 
 .close {
-  float: right;
+  position: absolute;
+  right: 1%;
+  top: 1%;
   border: none;
   background: none;
   width: 1.5em;
@@ -477,7 +542,6 @@ button:disabled {
   padding: 0%;
   line-height: 0%;
   border-radius: 1.5em;
-  transform: translate(25%, -25%);
   font-size: 2em;
   font-family: fantasy;
 }

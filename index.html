@@ -13,18 +13,7 @@
   <div></div>
     <h1>Scoreble</h1>
     <div id="menu-button-container">
-      <button class="menu-button" data-colorblind>
-        <svg id="eye-icon" viewBox = "0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
-          <g fill="none" stroke-width="50" stroke-linecap="round">
-            <path d="M 200 600 C 466.67 300 733.33 300 1000 600 C 733.33 900 466.67 900 200 600 z"/>
-            <circle cx="600" cy="600" r="130"/>
-          </g>
-          <g id="eye-slash" fill="none" stroke-width="50" stroke-linecap="round">
-            <line x1="200" y1="800" x2="1000" y2="400"/>
-          </g>
-        </svg>
-      </button>
-      <button class="menu-button" data-lightdark>
+      <button id="lightdark-button" title="Toggle Theme" class="menu-button">
           <svg viewBox = "0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
             <g id="moon-icon">
               <mask id="mask">
@@ -46,10 +35,24 @@
             </g>
           </svg>
       </button>
-      <button class="menu-button" data-help>?</button>
+      <button id="help-button" title="How To Play" class="menu-button">?</button>
+      <button id="settings-button" title="Settings" class="menu-button">
+        <svg id="gear-icon" viewBox = "0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
+          <circle fill="none" stroke-width="150" cx="600" cy="600" r="300"/>
+          <circle cx="600" cy="600" r="150"/>
+          <rect x="525" y="900" width="150" height="150"/>
+          <rect x="525" y="150" width="150" height="150"/>
+          <rect x="150" y="525" width="150" height="150"/>
+          <rect x="900" y="525" width="150" height="150"/>
+          <rect x="900" y="525" width="150" height="150" transform="rotate(45 600 600)"/>
+          <rect x="150" y="525" width="150" height="150" transform="rotate(45 600 600)"/>
+          <rect x="525" y="900" width="150" height="150" transform="rotate(45 600 600)"/>
+          <rect x="525" y="150" width="150" height="150" transform="rotate(45 600 600)"/>
+        </svg>
+      </button>
     </div>
 </div>
-<div class="modal" id="time-travel">
+<div class="modal" id="time-travel-modal">
   <div class="modal-content">    
     <h2>Warning!</h2>
     <div class="text"></div>
@@ -59,7 +62,7 @@
     </div>
   </div>
 </div>
-<div class="modal" id="giveup">
+<div class="modal" id="give-up-modal">
   <div class="modal-content">
     <button class="close"></button>
     <p>Are you sure you want to give up?</p>
@@ -69,7 +72,7 @@
     </div>
   </div>
 </div>
-<div class="modal" id="results">
+<div class="modal" id="results-modal">
   <div class="modal-content">
     <button class="close"></button>
     <div class="text"></div>
@@ -79,7 +82,7 @@
     </div>
   </div>
 </div>
-<div class="modal" id="help">
+<div class="modal" id="help-modal">
   <div class="modal-content">
     <button class="close"></button>
     <h2>How To Play</h2>
@@ -90,20 +93,39 @@
     </div>
   </div>
 </div>
+<div class="modal" id="settings-modal">
+  <div class="modal-content">
+    <button class="close"></button>
+    <h2>Settings</h2>
+    <div id="settings-content">
+      <p>Colorblind Mode</p>
+      <label class="toggle" id="colorblind-toggle">
+        <input type="checkbox">
+        <span class="slider"></span>
+      </label>
+      <p>Symbols Mode</p>
+      <label class="toggle" id="symbols-toggle">
+        <input type="checkbox">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="text"></div>
+  </div>
+</div>
 
 <div id="alert-container"></div>
 <div id="board"></div>
 
-<div data-keyboard id="keyboard">
-      <button data-giveup class="key xl">Give Up</button>
+<div id="keyboard">
+      <button id="give-up-button" class="key xl">Give Up</button>
       <div class="space large"></div>
       <div id="select-container">
         <div id="space"></div>
-        <button data-select class="key">
+        <button id="select-button" class="key">
           <span id="select-text">Change Tiles</span>
           <svg id="rotation-icon" viewBox = "0 0 2400 1200" xmlns="http://www.w3.org/2000/svg">
             <g stroke-width="50" stroke-linecap="round">
-            <circle id="rotation-icon-selector" cx="550" cy="600" r="500" stroke="none" fill="gray"/>
+            <circle id="rotation-slider" cx="550" cy="600" r="500" stroke="none" fill="gray"/>
             <line x1="150" y1="700" x2="750" y2="700"/>
             <line x1="150" y1="500" x2="750" y2="500"/>
             <line x1="950" y1="600" x2="650" y2="750"/>
@@ -143,7 +165,7 @@
 
       <div class="space"></div>
 
-      <button data-enter class="key large">ENTER</button>
+      <button id="enter-key" class="key large">ENTER</button>
       <button class="key" data-key="Z">Z</button>
       <button class="key" data-key="X">X</button>
       <button class="key" data-key="C">C</button>
@@ -152,8 +174,7 @@
       <button class="key" data-key="N">N</button>
       <button class="key" data-key="M">M</button>
 
-      <button data-delete class="key large">DEL</button>
-
+      <button id="delete-key" class="key large">DEL</button>
     </div>
 
 </body>
